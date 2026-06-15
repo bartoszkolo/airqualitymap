@@ -24,57 +24,62 @@ export const CompactHeader = memo(function CompactHeader({ sensor, scale }: Comp
   const photo = SENSOR_PHOTOS[sensor.id];
 
   return (
-    <div className="relative overflow-hidden rounded-xl shadow-md" style={{ color: aqi.cls.textColor }}>
-      {/* Building photo */}
+    <div className="rounded-xl overflow-hidden shadow-md">
+      {/* Top: clean building photo */}
       {photo && (
-        <img
-          src={photo}
-          alt={sensor.name}
-          className="absolute inset-0 w-full h-full object-cover"
-          draggable={false}
-        />
+        <div className="h-32 relative">
+          <img
+            src={photo}
+            alt={sensor.name}
+            className="w-full h-full object-cover"
+            draggable={false}
+          />
+          {/* Subtle bottom fade to blend with info section */}
+          <div
+            className="absolute bottom-0 left-0 right-0 h-8"
+            style={{ background: `linear-gradient(to bottom, transparent, ${aqi.cls.color})` }}
+          />
+        </div>
       )}
 
-      {/* AQI color overlay — gradient: stronger at bottom for text legibility */}
+      {/* Bottom: solid AQI color info section */}
       <div
-        className="absolute inset-0"
+        className="px-4 py-3 relative overflow-hidden"
         style={{
-          background: photo
-            ? `linear-gradient(to bottom, transparent 0%, ${aqi.cls.color}55 40%, ${aqi.cls.color}cc 70%, ${aqi.cls.color}f0 100%)`
-            : `linear-gradient(160deg, ${aqi.cls.color} 0%, ${aqi.cls.color}99 60%, ${aqi.cls.color}bb 100%)`,
+          background: `linear-gradient(160deg, ${aqi.cls.color} 0%, ${aqi.cls.color}dd 100%)`,
+          color: aqi.cls.textColor,
         }}
-      />
-
-      {/* Background emoji accent */}
-      <div className="absolute -right-2 -bottom-2 text-7xl opacity-15 select-none blur-sm pointer-events-none">
-        {advice.emoji}
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 px-4 py-4">
-        {/* Row 1: emoji + sensor name */}
-        <div className="flex items-center gap-2">
-          <span className="text-xl leading-none">{advice.emoji}</span>
-          <h2 className="text-xl font-bold tracking-tight leading-tight drop-shadow-sm">{sensor.name}</h2>
+      >
+        {/* Emoji background accent */}
+        <div className="absolute -right-2 -bottom-2 text-7xl opacity-15 select-none blur-sm pointer-events-none">
+          {advice.emoji}
         </div>
 
-        {/* Row 2: AQI label + index inline */}
-        <p className="text-sm font-semibold opacity-90 mt-2">
-          {aqi.cls.label}
-          {aqi.index !== null && (
-            <span className="ml-2 text-xs font-normal opacity-75">
-              {scale === 'caqi' ? `CAQI ${aqi.index}` : `GIOŚ ${aqi.index}`}
-            </span>
-          )}
-        </p>
+        <div className="relative z-10">
+          {/* Row 1: emoji + sensor name */}
+          <div className="flex items-center gap-2">
+            <span className="text-xl leading-none">{advice.emoji}</span>
+            <h2 className="text-xl font-bold tracking-tight leading-tight">{sensor.name}</h2>
+          </div>
 
-        {/* Row 3: health advice */}
-        <p className="text-xs opacity-75 mt-1 leading-snug">{advice.advice}</p>
+          {/* Row 2: AQI label + index */}
+          <p className="text-sm font-semibold opacity-90 mt-1.5">
+            {aqi.cls.label}
+            {aqi.index !== null && (
+              <span className="ml-2 text-xs font-normal opacity-75">
+                {scale === 'caqi' ? `CAQI ${aqi.index}` : `GIOŚ ${aqi.index}`}
+              </span>
+            )}
+          </p>
 
-        {/* Row 4: timestamp + status badge */}
-        <div className="flex items-center justify-between mt-2.5">
-          <p className="text-xs opacity-60">{when}</p>
-          <StatusBadge sensor={sensor} />
+          {/* Row 3: health advice */}
+          <p className="text-xs opacity-75 mt-1 leading-snug">{advice.advice}</p>
+
+          {/* Row 4: timestamp + status */}
+          <div className="flex items-center justify-between mt-2">
+            <p className="text-xs opacity-60">{when}</p>
+            <StatusBadge sensor={sensor} />
+          </div>
         </div>
       </div>
     </div>
