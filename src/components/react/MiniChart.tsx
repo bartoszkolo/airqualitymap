@@ -3,6 +3,7 @@ import { useState, useEffect, memo } from 'react';
 import { AreaChart as AreaChartIcon } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
+import { LiveIndicator } from './ui/live-indicator';
 import {
   AreaChart,
   Area,
@@ -122,11 +123,7 @@ export const MiniChart = memo(function MiniChart({ sensorId, selectedPollutant }
         <Tabs value={range} onValueChange={(v) => setRange(v as ChartRange)}>
           <TabsList className="grid w-full grid-cols-3 h-8 bg-muted/50">
             <TabsTrigger value="live" className="text-xs font-medium flex items-center gap-1.5">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 motion-reduce:hidden" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" />
-              </span>
-              Na żywo
+              <LiveIndicator label="Na żywo" />
             </TabsTrigger>
             <TabsTrigger value="24h" className="text-xs font-medium">24h</TabsTrigger>
             <TabsTrigger value="30d" className="text-xs font-medium">30 dni</TabsTrigger>

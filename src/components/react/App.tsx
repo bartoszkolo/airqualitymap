@@ -22,7 +22,10 @@ function SplashScreen({ hiding }: { hiding: boolean }) {
   return (
     <div className={`splash-overlay${hiding ? ' splash-overlay--out' : ''}`} aria-hidden="true">
       <div className="splash-content">
-        <img src="/logo.png" alt="Powietrze Gniezno" className="splash-logo" />
+        <picture>
+          <source srcSet="/logo.webp" type="image/webp" />
+          <img src="/logo.png" alt="Powietrze Gniezno" className="splash-logo" />
+        </picture>
         <div className="splash-dots">
           <span className="splash-dot" />
           <span className="splash-dot" />

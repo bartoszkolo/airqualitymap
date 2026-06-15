@@ -188,6 +188,18 @@
   .chart-fade-in { animation: none; }
 }
 
+/* ── Sidebar stagger animations ──────────────────────────────────────── */
+@keyframes slide-in-stagger {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.sidebar-stagger {
+  animation: slide-in-stagger 300ms ease-out backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-stagger { animation: none; }
+}
+
 /* ── Splash screen ──────────────────────────────────────────────────── */
 .splash-overlay {
   position: fixed;

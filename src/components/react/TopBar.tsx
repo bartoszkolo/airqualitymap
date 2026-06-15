@@ -1,5 +1,6 @@
 // src/components/react/TopBar.tsx
 import { memo } from 'react';
+import { LiveIndicator } from './ui/live-indicator';
 import type { Scale } from '@/lib/types';
 
 interface TopBarProps {
@@ -17,7 +18,10 @@ export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: 
     <div className="flex items-center gap-3 px-4 py-2.5 bg-card border-b border-border z-50 shadow-sm h-14">
       {/* Logo */}
       <div className="flex items-center flex-shrink-0">
-        <img src="/logo.png" alt="Powietrze Gniezno" className="h-12 w-auto" />
+        <picture>
+          <source srcSet="/logo.webp" type="image/webp" />
+          <img src="/logo.png" alt="Powietrze Gniezno" className="h-11 w-auto" />
+        </picture>
       </div>
 
       <div className="flex-1" />
@@ -64,10 +68,7 @@ export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: 
       {/* Update time */}
       {timeStr && (
         <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 motion-reduce:hidden" />
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" />
-          </span>
+          <LiveIndicator />
           <span>{timeStr}</span>
         </div>
       )}
