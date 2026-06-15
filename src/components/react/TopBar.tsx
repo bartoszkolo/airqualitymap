@@ -17,7 +17,7 @@ export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: 
     <div className="flex items-center gap-3 px-4 py-2.5 bg-card border-b border-border z-50 shadow-sm h-14">
       {/* Logo */}
       <div className="flex items-center flex-shrink-0">
-        <img src="/logo.png" alt="Powietrze Gniezno" className="h-10 w-auto" />
+        <img src="/logo.png" alt="Powietrze Gniezno" className="h-12 w-auto" />
       </div>
 
       <div className="flex-1" />
