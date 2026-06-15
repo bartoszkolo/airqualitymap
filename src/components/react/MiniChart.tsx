@@ -1,5 +1,6 @@
 // src/components/react/MiniChart.tsx
 import { useState, useEffect, memo } from 'react';
+import { AreaChart as AreaChartIcon } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
 import {
@@ -136,8 +137,9 @@ export const MiniChart = memo(function MiniChart({ sensorId, selectedPollutant }
           {loading ? (
             <ChartSkeleton />
           ) : chartData.length === 0 ? (
-            <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
-              Brak danych historycznych
+            <div className="h-32 flex flex-col items-center justify-center gap-2 text-muted-foreground">
+              <AreaChartIcon className="h-8 w-8 opacity-30" />
+              <span className="text-sm">Brak danych historycznych</span>
             </div>
           ) : (
             /* key na sensorId+range+pollutant resetuje mounting → Recharts rysuje animację od nowa */
