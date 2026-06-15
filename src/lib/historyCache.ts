@@ -2,6 +2,7 @@
 // Module-level in-memory cache — żyje przez całą sesję przeglądarki
 import type { HistoryResponse } from './types';
 
+const MAX_CACHE_SIZE = 50;
 const cache = new Map<string, { data: HistoryResponse; fetchedAt: number }>();
 
 const TTL: Record<'24h' | '30d', number> = {
@@ -21,5 +22,13 @@ export function getCachedHistory(sensorId: string, range: '24h' | '30d'): Histor
 }
 
 export function setCachedHistory(sensorId: string, range: '24h' | '30d', data: HistoryResponse): void {
-  cache.set(`${sensorId}:${range}`, { data, fetchedAt: Date.now() });
+  const key = `${sensorId}:${range}`;
+
+  // Evict oldest entry if at capacity
+  if (cache.size >= MAX_CACHE_SIZE) {
+    const oldestKey = cache.keys().next().value;
+    if (oldestKey) cache.delete(oldestKey);
+  }
+
+  cache.set(key, { data, fetchedAt: Date.now() });
 }

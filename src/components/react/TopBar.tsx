@@ -24,6 +24,9 @@ export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: 
         </picture>
       </div>
 
+      {/* H1 for SEO - visually hidden but accessible to screen readers */}
+      <h1 className="sr-only">Powietrze Gniezno - Mapa jakości powietrza</h1>
+
       <div className="flex-1" />
 
       {/* Scale toggle — sliding pill */}

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://airqualitymap.pages.dev/sitemap.xml

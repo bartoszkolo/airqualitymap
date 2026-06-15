@@ -35,23 +35,23 @@ export const PollutantStrip = memo(function PollutantStrip({ pm10, pm25, pm1, se
   const values = { pm10, pm25, pm1_0: pm1 };
 
   return (
-    <div className="flex gap-3">
-      {POLLUTANTS.map(({ key, label }) => {
-        const value = values[key];
-        const info = pollutantInfo[key];
-        const isSelected = selected === key;
+    <TooltipProvider>
+      <div className="flex gap-3">
+        {POLLUTANTS.map(({ key, label }) => {
+          const value = values[key];
+          const info = pollutantInfo[key];
+          const isSelected = selected === key;
 
-        // PM1 has no EU norm - show special badge
-        const showNoNormBadge = key === 'pm1_0';
-        const pct = !showNoNormBadge
-          ? (key === 'pm10'
-              ? (value && value > 0 ? Math.round((value / 50) * 100) : null)
-              : (value && value > 0 ? Math.round((value / 25) * 100) : null))
-          : null;
+          // PM1 has no EU norm - show special badge
+          const showNoNormBadge = key === 'pm1_0';
+          const pct = !showNoNormBadge
+            ? (key === 'pm10'
+                ? (value && value > 0 ? Math.round((value / 50) * 100) : null)
+                : (value && value > 0 ? Math.round((value / 25) * 100) : null))
+            : null;
 
-        return (
-          <TooltipProvider key={key}>
-            <Tooltip>
+          return (
+            <Tooltip key={key}>
               <TooltipTrigger asChild>
                 <button
                   onClick={() => onSelect(key)}
@@ -106,9 +106,9 @@ export const PollutantStrip = memo(function PollutantStrip({ pm10, pm25, pm1, se
                 </div>
               </TooltipContent>
             </Tooltip>
-          </TooltipProvider>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+    </TooltipProvider>
   );
 });
