@@ -18,13 +18,23 @@ export interface TbEnv {
 // Cache tokena w obrębie izolatu (Pages Function żyje jakiś czas między requestami).
 let cachedToken: { token: string; exp: number } | null = null;
 
+// Niektóre firewalle/WAF odrzucają (403) zapytania bez User-Agent — Cloudflare
+// Workers domyślnie go nie wysyła, więc nadajemy własny.
+const COMMON_HEADERS = {
+  'User-Agent': 'AirQualityMap/1.0 (+cloudflare-pages)',
+  Accept: 'application/json',
+};
+
 async function login(env: TbEnv): Promise<string> {
   const res = await fetch(`${env.TB_URL}/api/auth/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { ...COMMON_HEADERS, 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: env.TB_USERNAME, password: env.TB_PASSWORD }),
   });
-  if (!res.ok) throw new Error(`TB login ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`TB login ${res.status}: ${body.slice(0, 300)}`);
+  }
   const data = (await res.json()) as { token: string };
   // token domyślnie ważny ~2,5h — odświeżamy z zapasem co 60 min
   cachedToken = { token: data.token, exp: Date.now() + 60 * 60 * 1000 };
@@ -39,15 +49,18 @@ async function getToken(env: TbEnv): Promise<string> {
 async function tbGet<T>(env: TbEnv, path: string): Promise<T> {
   let token = await getToken(env);
   let res = await fetch(`${env.TB_URL}${path}`, {
-    headers: { 'X-Authorization': `Bearer ${token}` },
+    headers: { ...COMMON_HEADERS, 'X-Authorization': `Bearer ${token}` },
   });
   if (res.status === 401) {
     token = await login(env);
     res = await fetch(`${env.TB_URL}${path}`, {
-      headers: { 'X-Authorization': `Bearer ${token}` },
+      headers: { ...COMMON_HEADERS, 'X-Authorization': `Bearer ${token}` },
     });
   }
-  if (!res.ok) throw new Error(`TB GET ${path} -> ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`TB GET ${path} -> ${res.status}: ${body.slice(0, 200)}`);
+  }
   return res.json() as Promise<T>;
 }
 
