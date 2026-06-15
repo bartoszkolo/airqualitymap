@@ -1,12 +1,22 @@
 // src/components/react/App.tsx
-import { useState, useEffect } from 'react';
-import { MapView } from './MapView';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import type { Sensor, Scale, SensorsResponse } from '@/lib/types';
 
+// Lazy load MapView to avoid Leaflet server-side import
+const MapView = lazy(() => import('./MapView').then(m => ({ default: m.MapView })));
+
 const REFRESH_MS = 60_000;
 const SENSORS_URL = '/api/sensors.json';
+
+function MapFallback() {
+  return (
+    <div className="flex-1 flex items-center justify-center bg-muted">
+      <p className="text-muted-foreground">Ładowanie mapy...</p>
+    </div>
+  );
+}
 
 export function App() {
   const [sensors, setSensors] = useState<Sensor[]>([]);
@@ -45,12 +55,14 @@ export function App() {
         updatedAt={updatedAt}
       />
 
-      <MapView
-        sensors={sensors}
-        scale={scale}
-        selectedId={selectedId}
-        onMarkerClick={setSelectedId}
-      />
+      <Suspense fallback={<MapFallback />}>
+        <MapView
+          sensors={sensors}
+          scale={scale}
+          selectedId={selectedId}
+          onMarkerClick={setSelectedId}
+        />
+      </Suspense>
 
       {selectedSensor && (
         <Sidebar
