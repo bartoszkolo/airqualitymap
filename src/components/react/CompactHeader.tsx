@@ -3,6 +3,7 @@ import { memo } from 'react';
 import { StatusBadge } from './StatusBadge';
 import { computeAqi } from '@/lib/aqi';
 import { getHealthAdvice } from '@/lib/content';
+import { SENSOR_PHOTOS } from '@/lib/sensorPhotos';
 import type { Sensor, Scale } from '@/lib/types';
 
 interface CompactHeaderProps {
@@ -20,24 +21,41 @@ export const CompactHeader = memo(function CompactHeader({ sensor, scale }: Comp
     minute: '2-digit',
   });
 
+  const photo = SENSOR_PHOTOS[sensor.id];
+
   return (
-    <div
-      className="px-4 py-4 relative overflow-hidden rounded-xl shadow-md"
-      style={{
-        background: `linear-gradient(160deg, ${aqi.cls.color} 0%, ${aqi.cls.color}99 60%, ${aqi.cls.color}bb 100%)`,
-        color: aqi.cls.textColor,
-      }}
-    >
-      {/* Background emoji — bottom-right accent */}
-      <div className="absolute -right-2 -bottom-2 text-7xl opacity-20 select-none blur-sm pointer-events-none">
+    <div className="relative overflow-hidden rounded-xl shadow-md" style={{ color: aqi.cls.textColor }}>
+      {/* Building photo */}
+      {photo && (
+        <img
+          src={photo}
+          alt={sensor.name}
+          className="absolute inset-0 w-full h-full object-cover"
+          draggable={false}
+        />
+      )}
+
+      {/* AQI color overlay — gradient: stronger at bottom for text legibility */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: photo
+            ? `linear-gradient(160deg, ${aqi.cls.color}cc 0%, ${aqi.cls.color}ee 100%)`
+            : `linear-gradient(160deg, ${aqi.cls.color} 0%, ${aqi.cls.color}99 60%, ${aqi.cls.color}bb 100%)`,
+        }}
+      />
+
+      {/* Background emoji accent */}
+      <div className="absolute -right-2 -bottom-2 text-7xl opacity-15 select-none blur-sm pointer-events-none">
         {advice.emoji}
       </div>
 
-      <div className="relative z-10">
+      {/* Content */}
+      <div className="relative z-10 px-4 py-4">
         {/* Row 1: emoji + sensor name */}
         <div className="flex items-center gap-2">
           <span className="text-xl leading-none">{advice.emoji}</span>
-          <h2 className="text-xl font-bold tracking-tight leading-tight">{sensor.name}</h2>
+          <h2 className="text-xl font-bold tracking-tight leading-tight drop-shadow-sm">{sensor.name}</h2>
         </div>
 
         {/* Row 2: AQI label + index inline */}
@@ -50,8 +68,8 @@ export const CompactHeader = memo(function CompactHeader({ sensor, scale }: Comp
           )}
         </p>
 
-        {/* Row 3: health advice — small, contextual */}
-        <p className="text-xs opacity-70 mt-1 leading-snug">{advice.advice}</p>
+        {/* Row 3: health advice */}
+        <p className="text-xs opacity-75 mt-1 leading-snug">{advice.advice}</p>
 
         {/* Row 4: timestamp + status badge */}
         <div className="flex items-center justify-between mt-2.5">
