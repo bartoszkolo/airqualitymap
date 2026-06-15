@@ -36,7 +36,7 @@ function transformDataRange(points: HistoryPoint, pollutant: 'pm10' | 'pm25' | '
   const pollutantData = points[pollutant] || [];
   return pollutantData.map((p) => ({
     timestamp: formatTimestamp(range, p.ts),
-    value: parseFloat(p.value),
+    value: Math.round(parseFloat(p.value)),
   }));
 }
 
@@ -94,6 +94,7 @@ export function MiniChart({ sensorId, selectedPollutant }: MiniChartProps) {
                   className="text-[10px]"
                   tick={{ fill: 'hsl(var(--muted-foreground))' }}
                   width={32}
+                  tickFormatter={(value) => Math.round(value).toString()}
                 />
                 <Tooltip
                   contentStyle={{
@@ -104,6 +105,7 @@ export function MiniChart({ sensorId, selectedPollutant }: MiniChartProps) {
                   }}
                   itemStyle={{ color: 'hsl(var(--popover-foreground))' }}
                   labelStyle={{ color: 'hsl(var(--muted-foreground))' }}
+                  formatter={(value: number) => [Math.round(value), 'µg/m³']}
                 />
                 <Line
                   type="monotone"
