@@ -50,7 +50,10 @@ export const CompactHeader = memo(function CompactHeader({ sensor, scale }: Comp
           )}
         </p>
 
-        {/* Row 3: timestamp + status badge */}
+        {/* Row 3: health advice — small, contextual */}
+        <p className="text-xs opacity-70 mt-1 leading-snug">{advice.advice}</p>
+
+        {/* Row 4: timestamp + status badge */}
         <div className="flex items-center justify-between mt-2.5">
           <p className="text-xs opacity-60">{when}</p>
           <StatusBadge sensor={sensor} />
