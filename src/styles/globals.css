@@ -57,3 +57,60 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Leaflet marker pulse animation */
+@keyframes pulse-ring-1 {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-ring-2 {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.leaflet-pulse-ring-1 {
+  animation: pulse-ring-1 1.5s ease-out infinite;
+  transform-origin: center;
+}
+
+.leaflet-pulse-ring-2 {
+  animation: pulse-ring-2 1.5s ease-out infinite;
+  animation-delay: 0.3s;
+  transform-origin: center;
+}
+
+.leaflet-marker-selected {
+  transition: all 0.2s ease-out;
+}
+
+/* Better tooltip styling */
+:global(.custom-tooltip) {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+:global(.custom-tooltip .leaflet-tooltip-content) {
+  margin: 0;
+}
+
+:global(.leaflet-tooltip-top:before) {
+  border-top-color: rgba(255, 255, 255, 0.95) !important;
+}

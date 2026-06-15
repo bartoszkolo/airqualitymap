@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import { CompactHeader } from './CompactHeader';
 import { PollutantStrip } from './PollutantStrip';
 import { MiniChart } from './MiniChart';
+import { EducationCard } from './EducationCard';
 import { computeAqi } from '@/lib/aqi';
 import type { Sensor, Scale } from '@/lib/types';
 
@@ -22,7 +23,7 @@ export function Sidebar({ sensor, scale, onClose }: SidebarProps) {
   const aqi = computeAqi(scale, { pm10: sensor.pm10, pm25: sensor.pm25 });
 
   return (
-    <div className="fixed inset-y-0 left-0 w-full sm:w-96 bg-background/95 backdrop-blur-md shadow-2xl z-50 flex flex-col">
+    <div className="fixed inset-y-0 left-0 w-full sm:w-96 bg-background/95 backdrop-blur-md shadow-2xl z-50 flex flex-col animate-in slide-in-from-left duration-300 ease-out">
       {/* Close button - absolute, no space taken */}
       <button
         onClick={onClose}
@@ -57,6 +58,9 @@ export function Sidebar({ sensor, scale, onClose }: SidebarProps) {
             selectedPollutant={selectedPollutant}
           />
         </div>
+
+        {/* Education card */}
+        <EducationCard scale={scale} />
       </div>
     </div>
   );

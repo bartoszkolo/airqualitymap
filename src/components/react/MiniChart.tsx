@@ -18,14 +18,14 @@ interface MiniChartProps {
   selectedPollutant: 'pm10' | 'pm25' | 'pm1_0';
 }
 
-type ChartRange = '24h' | '7d';
+type ChartRange = '24h' | '30d';
 
 function formatTimestamp(range: ChartRange, ts: number): string {
   const date = new Date(ts);
   switch (range) {
     case '24h':
       return date.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-    case '7d':
+    case '30d':
       return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
     default:
       return date.toLocaleString('pl-PL');
@@ -66,7 +66,7 @@ export function MiniChart({ sensorId, selectedPollutant }: MiniChartProps) {
         <Tabs value={range} onValueChange={(v) => setRange(v as ChartRange)}>
           <TabsList className="grid w-full grid-cols-2 h-8 bg-muted/50">
             <TabsTrigger value="24h" className="text-xs font-medium">24h</TabsTrigger>
-            <TabsTrigger value="7d" className="text-xs font-medium">7 dni</TabsTrigger>
+            <TabsTrigger value="30d" className="text-xs font-medium">30 dni</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -121,8 +121,8 @@ export function MiniChart({ sensorId, selectedPollutant }: MiniChartProps) {
         {/* Simple stats row */}
         {data && !loading && chartData.length > 0 && (
           <div className="flex justify-center gap-6 mt-3 pt-3 border-t border-border/50 text-xs">
-            <span className="text-muted-foreground">Śr: <span className="font-semibold text-foreground ml-1">{data.average.toFixed(0)}</span></span>
-            <span className="text-muted-foreground">Max: <span className="font-semibold text-foreground ml-1">{data.max.toFixed(0)}</span></span>
+            <span className="text-muted-foreground">Śr: <span className="font-semibold text-foreground ml-1">{data.average.toFixed(0)} µg/m³</span></span>
+            <span className="text-muted-foreground">Max: <span className="font-semibold text-foreground ml-1">{data.max.toFixed(0)} µg/m³</span></span>
           </div>
         )}
       </CardContent>
