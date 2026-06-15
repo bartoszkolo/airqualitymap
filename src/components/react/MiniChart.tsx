@@ -110,7 +110,7 @@ export const MiniChart = memo(function MiniChart({ sensorId, selectedPollutant }
   }, [sensorId, range]);
 
   const rawChartData = data ? transformDataRange(data.points, selectedPollutant, range) : [];
-  const chartData = range === 'live' ? rawChartData.slice(-15) : rawChartData;
+  const chartData = range === 'live' ? rawChartData.slice(-30) : rawChartData;
   const norm = EU_NORMS[selectedPollutant];
   // Unique gradient ID per sensor — unika konfliktów gdy wiele chartów w DOM
   const gradId = `aqi-grad-${sensorId.replace(/[^a-zA-Z0-9]/g, '_')}`;
@@ -194,6 +194,7 @@ export const MiniChart = memo(function MiniChart({ sensorId, selectedPollutant }
                     tickFormatter={(v) => Math.round(v).toString()}
                     axisLine={false}
                     tickLine={false}
+                    domain={[0, (dataMax: number) => Math.ceil(Math.max(dataMax, norm ?? 0) * 1.2)]}
                   />
                   <Tooltip
                     contentStyle={{
