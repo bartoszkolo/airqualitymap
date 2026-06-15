@@ -24,7 +24,7 @@ export const CompactHeader = memo(function CompactHeader({ sensor, scale }: Comp
   const photo = SENSOR_PHOTOS[sensor.id];
 
   return (
-    <div className="rounded-xl overflow-hidden shadow-md">
+    <div className="overflow-hidden shadow-sm flex-shrink-0">
       {/* Top: clean building photo */}
       {photo && (
         <div className="h-32 relative">

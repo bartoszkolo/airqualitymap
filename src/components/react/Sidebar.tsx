@@ -1,7 +1,6 @@
 // src/components/react/Sidebar.tsx
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-import { Button } from './ui/button';
+import { ChevronLeft } from 'lucide-react';
 import { CompactHeader } from './CompactHeader';
 import { PollutantStrip } from './PollutantStrip';
 import { MiniChart } from './MiniChart';
@@ -31,23 +30,26 @@ export function Sidebar({ sensor, scale, closing, onClose }: SidebarProps) {
 
   return (
     <div className={`fixed top-0 sm:top-14 bottom-0 left-0 w-full sm:w-96 bg-background/95 backdrop-blur-md shadow-2xl z-40 flex flex-col sidebar-panel ${translateClass} ${closing ? 'sidebar-closing' : ''}`}>
-      {/* Drag handle — widoczny tylko na mobile (bottom-sheet) */}
+      {/* Drag handle — mobile only */}
       <div className="sm:hidden flex justify-center pt-3 pb-1 flex-shrink-0" aria-hidden="true">
         <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
       </div>
 
-      {/* Close button - absolute, no space taken */}
+      {/* External close tab — sticks out to the right of the sidebar */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-20 p-2.5 rounded-full bg-background/60 backdrop-blur-sm hover:bg-background hover:shadow-md transition-all"
+        className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-full z-50 flex items-center justify-center bg-background border border-l-0 border-border rounded-r-xl shadow-md hover:bg-muted transition-colors"
+        style={{ width: 28, paddingTop: 20, paddingBottom: 20 }}
         aria-label="Zamknij"
       >
-        <X className="h-4 w-4" />
+        <ChevronLeft className="h-4 w-4 text-foreground" />
       </button>
 
+      {/* CompactHeader — edge-to-edge, no padding */}
+      <CompactHeader sensor={sensor} scale={scale} />
+
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
-        <CompactHeader sensor={sensor} scale={scale} />
+      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
         <PollutantStrip
           pm10={sensor.pm10}
           pm25={sensor.pm25}
