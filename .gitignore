@@ -9,6 +9,9 @@ node_modules/
 .wrangler/
 .dev.vars
 
+# vercel
+.vercel/
+
 # env / secrets — NIGDY nie commitujemy danych dostępowych do ThingsBoard
 .env
 .env.*

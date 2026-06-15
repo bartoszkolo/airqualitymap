@@ -18,8 +18,8 @@ export interface TbEnv {
 // Cache tokena w obrębie izolatu (Pages Function żyje jakiś czas między requestami).
 let cachedToken: { token: string; exp: number } | null = null;
 
-// Niektóre firewalle/WAF odrzucają (403) zapytania bez User-Agent — Cloudflare
-// Workers domyślnie go nie wysyła, więc nadajemy własny.
+// Niektóre firewalle/WAF odrzucają (403) zapytania bez User-Agent — niektóre
+// platformy domyślnie go nie wysyłają, więc nadajemy własny.
 const COMMON_HEADERS = {
   'User-Agent': 'AirQualityMap/1.0 (+cloudflare-pages)',
   Accept: 'application/json',
