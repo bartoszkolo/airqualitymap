@@ -30,7 +30,7 @@ export function Sidebar({ sensor, scale, closing, onClose }: SidebarProps) {
   const translateClass = !mounted || closing ? '-translate-x-full' : 'translate-x-0';
 
   return (
-    <div className={`fixed inset-y-0 left-0 w-full sm:w-96 bg-background/95 backdrop-blur-md shadow-2xl z-50 flex flex-col sidebar-panel ${translateClass} ${closing ? 'sidebar-closing' : ''}`}>
+    <div className={`fixed top-0 sm:top-14 bottom-0 left-0 w-full sm:w-96 bg-background/95 backdrop-blur-md shadow-2xl z-40 flex flex-col sidebar-panel ${translateClass} ${closing ? 'sidebar-closing' : ''}`}>
       {/* Drag handle — widoczny tylko na mobile (bottom-sheet) */}
       <div className="sm:hidden flex justify-center pt-3 pb-1 flex-shrink-0" aria-hidden="true">
         <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />

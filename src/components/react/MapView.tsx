@@ -19,7 +19,7 @@ const GNIEZNO_CENTER: [number, number] = [52.535, 17.595];
 function MapLegend({ scale }: { scale: Scale }) {
   const classes = scaleLegend(scale);
   return (
-    <div className="absolute bottom-7 left-3 z-[500] bg-background/90 backdrop-blur-sm rounded-xl border border-border/50 shadow-lg px-3 py-2.5 pointer-events-none">
+    <div className="absolute bottom-7 right-3 z-[500] bg-background/90 backdrop-blur-sm rounded-xl border border-border/50 shadow-lg px-3 py-2.5 pointer-events-none">
       <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">
         {scale === 'caqi' ? 'Indeks CAQI' : 'Indeks GIOŚ'}
       </p>
@@ -61,7 +61,7 @@ export const MapView = memo(function MapView({ sensors, scale, selectedId, onMar
         zoomControl={false}
       >
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
           maxZoom={19}
         />

@@ -14,16 +14,13 @@ export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: 
     : '';
 
   return (
-    <div className="flex items-center gap-4 px-5 py-4 bg-card/80 backdrop-blur-md border-b border-border z-20 shadow-sm">
-      {/* Logo section */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 shadow-lg">
-          <span className="text-xl" aria-hidden="true">🌬️</span>
+    <div className="flex items-center gap-3 px-4 py-2.5 bg-card border-b border-border z-50 shadow-sm h-14">
+      {/* Logo */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-sky-400 to-blue-600 shadow-md flex-shrink-0">
+          <span className="text-base" aria-hidden="true">🌬️</span>
         </div>
-        <div>
-          <h1 className="font-bold text-lg leading-tight">Powietrze Gniezno</h1>
-          <p className="text-xs text-muted-foreground">Jakość powietrza w czasie rzeczywistym</p>
-        </div>
+        <h1 className="font-semibold text-sm leading-tight">Powietrze Gniezno</h1>
       </div>
 
       <div className="flex-1" />
@@ -32,9 +29,9 @@ export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: 
       <div
         role="tablist"
         aria-label="Wybór skali jakości powietrza"
-        className="relative flex items-center bg-muted/50 rounded-full p-1 border border-border/50"
+        className="relative flex items-center bg-muted/60 rounded-full p-1 border border-border/50"
       >
-        {/* Animowany pill — przesuwa się między CAQI a GIOŚ */}
+        {/* Animowany pill */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-y-1 left-1 rounded-full bg-primary shadow-sm transition-transform duration-200 ease-out"
@@ -46,9 +43,9 @@ export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: 
         <button
           role="tab"
           aria-selected={scale === 'caqi'}
-          aria-label="Skala CAQI - Common Air Quality Index"
+          aria-label="Skala CAQI"
           onClick={() => onScaleChange('caqi')}
-          className={`relative z-10 flex-1 min-h-[44px] px-4 py-3 rounded-full text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none ${
+          className={`relative z-10 flex-1 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none ${
             scale === 'caqi' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
@@ -57,9 +54,9 @@ export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: 
         <button
           role="tab"
           aria-selected={scale === 'gios'}
-          aria-label="Skala GIOŚ - Polski indeks jakości powietrza"
+          aria-label="Skala GIOŚ"
           onClick={() => onScaleChange('gios')}
-          className={`relative z-10 flex-1 min-h-[44px] px-4 py-3 rounded-full text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none ${
+          className={`relative z-10 flex-1 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none ${
             scale === 'gios' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
@@ -69,12 +66,12 @@ export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: 
 
       {/* Update time */}
       {timeStr && (
-        <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg min-h-[44px]">
-          <span className="relative flex h-2 w-2 motion-reduce:static">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 motion-reduce:hidden"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+        <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 motion-reduce:hidden" />
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" />
           </span>
-          <span>Aktualizacja {timeStr}</span>
+          <span>{timeStr}</span>
         </div>
       )}
     </div>
