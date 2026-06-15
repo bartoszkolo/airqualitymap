@@ -2,10 +2,9 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from './ui/button';
-import { SensorHeader } from './SensorHeader';
-import { PollutantCard } from './PollutantCard';
-import { ChartSection } from './ChartSection';
-import { HealthAdvice } from './HealthAdvice';
+import { CompactHeader } from './CompactHeader';
+import { PollutantStrip } from './PollutantStrip';
+import { MiniChart } from './MiniChart';
 import { computeAqi } from '@/lib/aqi';
 import type { Sensor, Scale } from '@/lib/types';
 
@@ -23,50 +22,41 @@ export function Sidebar({ sensor, scale, onClose }: SidebarProps) {
   const aqi = computeAqi(scale, { pm10: sensor.pm10, pm25: sensor.pm25 });
 
   return (
-    <div className="fixed inset-y-0 left-0 w-full sm:w-96 bg-background shadow-xl z-50 overflow-y-auto transform transition-transform">
-      <div className="sticky top-0 z-10 flex justify-end p-4 bg-background/80 backdrop-blur-sm">
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-5 w-5" />
-        </Button>
-      </div>
+    <div className="fixed inset-y-0 left-0 w-full sm:w-96 bg-background/95 backdrop-blur-md shadow-2xl z-50 flex flex-col">
+      {/* Close button - absolute, no space taken */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 z-20 p-2.5 rounded-full bg-background/60 backdrop-blur-sm hover:bg-background hover:shadow-md transition-all"
+        aria-label="Zamknij"
+      >
+        <X className="h-4 w-4" />
+      </button>
 
-      <div className="p-4 space-y-4">
-        <SensorHeader sensor={sensor} scale={scale} />
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4">
+        {/* Compact header with emoji */}
+        <CompactHeader sensor={sensor} scale={scale} />
 
+        {/* Pollutant strip - horizontal */}
         <div>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-3 px-1">
-            Pyły zawieszone
-          </h3>
-          <div className="space-y-2">
-            <PollutantCard
-              pollutant="pm10"
-              value={sensor.pm10}
-              isActive={selectedPollutant === 'pm10'}
-              onClick={() => setSelectedPollutant('pm10')}
-            />
-            <PollutantCard
-              pollutant="pm25"
-              value={sensor.pm25}
-              isActive={selectedPollutant === 'pm25'}
-              onClick={() => setSelectedPollutant('pm25')}
-            />
-            <PollutantCard
-              pollutant="pm1"
-              value={sensor.pm1}
-              isActive={selectedPollutant === 'pm1_0'}
-              onClick={() => setSelectedPollutant('pm1_0')}
-            />
-          </div>
+          <h3 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Pyły zawieszone</h3>
+          <PollutantStrip
+            pm10={sensor.pm10}
+            pm25={sensor.pm25}
+            pm1={sensor.pm1}
+            selected={selectedPollutant}
+            onSelect={setSelectedPollutant}
+          />
         </div>
 
-        <ChartSection
-          sensorId={sensor.id}
-          selectedPollutant={selectedPollutant}
-        />
-
-        <HealthAdvice aqi={aqi} scale={scale} />
-
-        <div className="pb-safe" />
+        {/* Mini chart */}
+        <div>
+          <h3 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Historia</h3>
+          <MiniChart
+            sensorId={sensor.id}
+            selectedPollutant={selectedPollutant}
+          />
+        </div>
       </div>
     </div>
   );
