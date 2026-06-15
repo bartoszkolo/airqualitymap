@@ -9,6 +9,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  ReferenceLine,
   ResponsiveContainer,
 } from 'recharts';
 import type { HistoryResponse, HistoryPoint } from '@/lib/types';
@@ -19,11 +20,16 @@ interface MiniChartProps {
   selectedPollutant: 'pm10' | 'pm25' | 'pm1_0';
 }
 
-type ChartRange = '24h' | '30d';
+type ChartRange = 'live' | '24h' | '30d';
+
+const EU_NORMS: Partial<Record<'pm10' | 'pm25' | 'pm1_0', number>> = {
+  pm10: 50,
+  pm25: 25,
+};
 
 function formatTimestamp(range: ChartRange, ts: number): string {
   const date = new Date(ts);
-  if (range === '24h') {
+  if (range === 'live' || range === '24h') {
     return date.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
   }
   return date.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
@@ -62,46 +68,50 @@ function ChartSkeleton() {
 }
 
 export const MiniChart = memo(function MiniChart({ sensorId, selectedPollutant }: MiniChartProps) {
-  const [range, setRange] = useState<ChartRange>('24h');
+  const [range, setRange] = useState<ChartRange>('live');
   const [data, setData] = useState<HistoryResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const cached = getCachedHistory(sensorId, range);
-    if (cached) {
-      setData(cached);
-      setLoading(false);
-      return;
+    const apiRange = range === 'live' ? '24h' : range;
+
+    const doFetch = (abort: AbortSignal) => {
+      if (range !== 'live') {
+        const cached = getCachedHistory(sensorId, range);
+        if (cached) { setData(cached); setLoading(false); return; }
+      }
+
+      setLoading(true);
+      fetch(`/api/history.json?id=${encodeURIComponent(sensorId)}&range=${apiRange}`, { signal: abort })
+        .then((res) => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
+        .then((json: HistoryResponse & { error?: string }) => {
+          if (json.error) throw new Error(json.error);
+          if (!abort.aborted) {
+            if (range !== 'live') setCachedHistory(sensorId, range, json);
+            setData(json);
+          }
+        })
+        .catch(() => { if (!abort.aborted) setData(null); })
+        .finally(() => { if (!abort.aborted) setLoading(false); });
+    };
+
+    const ac = new AbortController();
+    doFetch(ac.signal);
+
+    let interval: ReturnType<typeof setInterval> | null = null;
+    if (range === 'live') {
+      interval = setInterval(() => {
+        const ac2 = new AbortController();
+        doFetch(ac2.signal);
+      }, 60_000);
     }
 
-    const abortController = new AbortController();
-    setLoading(true);
-
-    fetch(`/api/history.json?id=${encodeURIComponent(sensorId)}&range=${range}`, {
-      signal: abortController.signal,
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((json: HistoryResponse & { error?: string }) => {
-        if (json.error) throw new Error(json.error);
-        if (!abortController.signal.aborted) {
-          setCachedHistory(sensorId, range, json);
-          setData(json);
-        }
-      })
-      .catch(() => {
-        if (!abortController.signal.aborted) setData(null);
-      })
-      .finally(() => {
-        if (!abortController.signal.aborted) setLoading(false);
-      });
-
-    return () => abortController.abort();
+    return () => { ac.abort(); if (interval) clearInterval(interval); };
   }, [sensorId, range]);
 
-  const chartData = data ? transformDataRange(data.points, selectedPollutant, range) : [];
+  const rawChartData = data ? transformDataRange(data.points, selectedPollutant, range) : [];
+  const chartData = range === 'live' ? rawChartData.slice(-15) : rawChartData;
+  const norm = EU_NORMS[selectedPollutant];
   // Unique gradient ID per sensor — unika konfliktów gdy wiele chartów w DOM
   const gradId = `aqi-grad-${sensorId.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
@@ -109,7 +119,14 @@ export const MiniChart = memo(function MiniChart({ sensorId, selectedPollutant }
     <Card className="border-muted/50">
       <CardContent className="p-4">
         <Tabs value={range} onValueChange={(v) => setRange(v as ChartRange)}>
-          <TabsList className="grid w-full grid-cols-2 h-8 bg-muted/50">
+          <TabsList className="grid w-full grid-cols-3 h-8 bg-muted/50">
+            <TabsTrigger value="live" className="text-xs font-medium flex items-center gap-1.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 motion-reduce:hidden" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" />
+              </span>
+              Na żywo
+            </TabsTrigger>
             <TabsTrigger value="24h" className="text-xs font-medium">24h</TabsTrigger>
             <TabsTrigger value="30d" className="text-xs font-medium">30 dni</TabsTrigger>
           </TabsList>
@@ -149,6 +166,21 @@ export const MiniChart = memo(function MiniChart({ sensorId, selectedPollutant }
                     opacity={0.3}
                     vertical={false}
                   />
+                  {norm && (
+                    <ReferenceLine
+                      y={norm}
+                      stroke="#f59e0b"
+                      strokeDasharray="5 3"
+                      strokeWidth={1.5}
+                      label={{
+                        value: `Norma UE ${norm} µg/m³`,
+                        position: 'insideTopRight',
+                        fontSize: 9,
+                        fill: '#f59e0b',
+                        dy: -6,
+                      }}
+                    />
+                  )}
                   <XAxis
                     dataKey="timestamp"
                     tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 9 }}
