@@ -16,11 +16,8 @@ export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: 
   return (
     <div className="flex items-center gap-3 px-4 py-2.5 bg-card border-b border-border z-50 shadow-sm h-14">
       {/* Logo */}
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-sky-400 to-blue-600 shadow-md flex-shrink-0">
-          <span className="text-base" aria-hidden="true">🌬️</span>
-        </div>
-        <h1 className="font-semibold text-sm leading-tight">Powietrze Gniezno</h1>
+      <div className="flex items-center flex-shrink-0">
+        <img src="/logo.png" alt="Powietrze Gniezno" className="h-8 w-auto" />
       </div>
 
       <div className="flex-1" />
