@@ -22,43 +22,39 @@ export const CompactHeader = memo(function CompactHeader({ sensor, scale }: Comp
 
   return (
     <div
-      className="p-5 relative overflow-hidden rounded-2xl shadow-lg"
+      className="px-4 py-4 relative overflow-hidden rounded-xl shadow-md"
       style={{
-        background: `linear-gradient(135deg, ${aqi.cls.color} 0%, ${aqi.cls.color}cc 100%)`,
+        background: `linear-gradient(160deg, ${aqi.cls.color} 0%, ${aqi.cls.color}99 60%, ${aqi.cls.color}bb 100%)`,
         color: aqi.cls.textColor,
       }}
     >
-      {/* Emoji as large background accent */}
-      <div className="absolute -right-3 -top-3 text-8xl opacity-20 select-none blur-sm">
+      {/* Background emoji — bottom-right accent */}
+      <div className="absolute -right-2 -bottom-2 text-7xl opacity-20 select-none blur-sm pointer-events-none">
         {advice.emoji}
       </div>
 
-      {/* Content */}
       <div className="relative z-10">
-        {/* Health advice message - subtle */}
-        <p className="text-sm font-semibold leading-snug">{advice.advice}</p>
-
-        {/* Sensor name + emoji row */}
-        <div className="flex items-center gap-3 mt-3 mb-1">
-          <span className="text-2xl">{advice.emoji}</span>
-          <h2 className="text-lg font-bold leading-tight">{sensor.name}</h2>
+        {/* Row 1: emoji + sensor name */}
+        <div className="flex items-center gap-2">
+          <span className="text-xl leading-none">{advice.emoji}</span>
+          <h2 className="text-xl font-bold tracking-tight leading-tight">{sensor.name}</h2>
         </div>
 
-        {/* AQI status row */}
-        <div className="flex items-center justify-between mt-2">
-          <div>
-            <p className="text-sm font-semibold opacity-95">{aqi.cls.label}</p>
-            {aqi.index !== null && (
-              <p className="text-xs opacity-80 mt-0.5">
-                {scale === 'caqi' ? `CAQI ${aqi.index}` : `GIOŚ: ${aqi.index}`}
-              </p>
-            )}
-          </div>
+        {/* Row 2: AQI label + index inline */}
+        <p className="text-sm font-semibold opacity-90 mt-2">
+          {aqi.cls.label}
+          {aqi.index !== null && (
+            <span className="ml-2 text-xs font-normal opacity-75">
+              {scale === 'caqi' ? `CAQI ${aqi.index}` : `GIOŚ ${aqi.index}`}
+            </span>
+          )}
+        </p>
+
+        {/* Row 3: timestamp + status badge */}
+        <div className="flex items-center justify-between mt-2.5">
+          <p className="text-xs opacity-60">{when}</p>
           <StatusBadge sensor={sensor} />
         </div>
-
-        {/* Update time */}
-        <p className="text-xs opacity-70 mt-2">Aktualizacja: {when}</p>
       </div>
     </div>
   );

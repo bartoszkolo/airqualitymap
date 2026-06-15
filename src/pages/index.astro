@@ -3,6 +3,31 @@
 // React + shadcn/ui redesign
 import { App } from '../components/react/App';
 import '../styles/globals.css';
+
+const siteUrl = 'https://airqualitymap.pages.dev';
+const title = 'Powietrze Gniezno';
+const description = 'Mapa czujników jakości powietrza w Gnieźnie — PM10, PM2.5, PM1, skala CAQI / GIOŚ w czasie rzeczywistym.';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: title,
+  url: siteUrl,
+  description,
+  applicationCategory: 'EnvironmentalApplication',
+  operatingSystem: 'All',
+  inLanguage: 'pl',
+  about: {
+    '@type': 'Thing',
+    name: 'Jakość powietrza',
+    description: 'Pomiary PM10, PM2.5 i PM1 oraz wskaźniki CAQI i GIOŚ dla Gniezna',
+  },
+  areaServed: {
+    '@type': 'City',
+    name: 'Gniezno',
+    addressCountry: 'PL',
+  },
+};
 ---
 
 <!doctype html>
@@ -10,10 +35,33 @@ import '../styles/globals.css';
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="canonical" href={siteUrl} />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <meta name="theme-color" content="#0aa5b5" />
-    <title>Powietrze Gniezno</title>
-    <meta name="description" content="Mapa czujników jakości powietrza w Gnieźnie — PM10, PM2.5, skala CAQI / GIOŚ." />
+
+    <meta name="theme-color" content="#79bc6a" />
+    <meta name="robots" content="index, follow" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={siteUrl} />
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:site_name" content={title} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- JSON-LD -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
     <App client:load />

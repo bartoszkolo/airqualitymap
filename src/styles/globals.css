@@ -198,36 +198,25 @@
   display: none !important;
 }
 
-/* Better tooltip styling - dark for better contrast */
+/* Sensor marker tooltip — clean white card */
 .leaflet-tooltip {
-  background-color: #1e293b !important;
-  border: none !important;
-  border-radius: 8px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  border-radius: 10px !important;
   padding: 0 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-}
-
-.leaflet-tooltip-content {
-  background: transparent !important;
-  color: #fff !important;
-  padding: 8px 12px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06) !important;
   font-family: system-ui, -apple-system, sans-serif !important;
 }
 
-.leaflet-tooltip-top:before {
-  border-top-color: #1e293b !important;
+.leaflet-tooltip::before {
+  display: none !important;
 }
 
-.leaflet-tooltip-bottom:before {
-  border-bottom-color: #1e293b !important;
-}
-
-.leaflet-tooltip-left:before {
-  border-left-color: #1e293b !important;
-}
-
-.leaflet-tooltip-right:before {
-  border-right-color: #1e293b !important;
+.leaflet-tooltip-top::before,
+.leaflet-tooltip-bottom::before,
+.leaflet-tooltip-left::before,
+.leaflet-tooltip-right::before {
+  display: none !important;
 }
 
 /* Respect motion preferences */

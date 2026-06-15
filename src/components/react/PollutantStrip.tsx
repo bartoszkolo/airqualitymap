@@ -58,40 +58,40 @@ export const PollutantStrip = memo(function PollutantStrip({ pm10, pm25, pm1, se
                   aria-pressed={isSelected}
                   aria-label={`Wybierz ${label}, bieżąca wartość: ${formatValue(value)} µg/m³`}
                   className={`
-                    flex-1 flex flex-col items-center min-h-[44px] py-3 px-3 rounded-xl
-                    border transition-colors transition-shadow duration-150
+                    group flex-1 flex flex-col items-center py-2 px-2 rounded-xl
+                    transition-all duration-150
                     active:scale-95
                     focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none
                     ${isSelected
-                      ? 'border-primary bg-primary/10 shadow-md ring-1 ring-primary/20'
-                      : 'border-border bg-card hover:border-primary/30 hover:bg-accent/5'
+                      ? 'bg-primary/10 shadow-sm ring-1 ring-primary/25'
+                      : 'bg-muted/40 hover:bg-muted/70'
                     }
                   `}
                 >
-                  {/* Name with help icon */}
-                  <div className="flex items-center gap-1 mb-2">
-                    <span className="text-sm font-semibold">{label}</span>
+                  {/* Label + help icon */}
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="text-xs font-medium text-muted-foreground">{label}</span>
                     <HelpCircle
-                      className="h-3 w-3 text-muted-foreground opacity-60"
+                      className="h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-60"
                       aria-hidden="true"
                     />
                   </div>
 
                   {/* Value */}
-                  <div className="text-2xl font-bold tracking-tight">{formatValue(value)}</div>
+                  <div className="text-lg font-bold tracking-tight tabular-nums">{formatValue(value)}</div>
 
-                  {/* Norm badge - mini */}
+                  {/* Norm badge */}
                   {showNoNormBadge ? (
                     <Badge
                       variant="secondary"
-                      className="text-[10px] h-5 px-1.5 mt-2 font-medium"
+                      className="text-[10px] h-4 px-1.5 mt-1.5 font-medium"
                     >
                       Bez normy
                     </Badge>
                   ) : pct !== null && pct > 0 ? (
                     <Badge
                       variant={pct > 100 ? 'destructive' : pct > 50 ? 'warning' : 'success'}
-                      className="text-[10px] h-5 px-1.5 mt-2 font-medium"
+                      className="text-[10px] h-4 px-1.5 mt-1.5 font-medium"
                     >
                       {pct}%
                     </Badge>

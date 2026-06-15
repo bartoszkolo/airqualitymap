@@ -46,32 +46,19 @@ export function Sidebar({ sensor, scale, closing, onClose }: SidebarProps) {
       </button>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4">
-        {/* Compact header with emoji */}
+      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
         <CompactHeader sensor={sensor} scale={scale} />
-
-        {/* Pollutant strip - horizontal */}
-        <div>
-          <h3 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Pyły zawieszone</h3>
-          <PollutantStrip
-            pm10={sensor.pm10}
-            pm25={sensor.pm25}
-            pm1={sensor.pm1}
-            selected={selectedPollutant}
-            onSelect={setSelectedPollutant}
-          />
-        </div>
-
-        {/* Mini chart */}
-        <div>
-          <h3 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Historia</h3>
-          <MiniChart
-            sensorId={sensor.id}
-            selectedPollutant={selectedPollutant}
-          />
-        </div>
-
-        {/* Education card */}
+        <PollutantStrip
+          pm10={sensor.pm10}
+          pm25={sensor.pm25}
+          pm1={sensor.pm1}
+          selected={selectedPollutant}
+          onSelect={setSelectedPollutant}
+        />
+        <MiniChart
+          sensorId={sensor.id}
+          selectedPollutant={selectedPollutant}
+        />
         <EducationCard scale={scale} />
       </div>
     </div>

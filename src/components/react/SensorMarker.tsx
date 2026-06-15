@@ -97,22 +97,41 @@ export const SensorMarker = memo(function SensorMarker({
       zIndexOffset={selected ? 1000 : 0}
     >
       <Tooltip direction="top" opacity={1}>
-        <div className="text-sm">
-          <div className="font-bold text-base">{sensor.name}</div>
-          <div className="flex items-center gap-2 mt-1">
-            <span
-              className="inline-block w-3 h-3 rounded-full"
-              style={{ backgroundColor: aqi.cls.color }}
-            />
-            <span className="font-medium">{aqi.cls.label}</span>
+        <div style={{ padding: '8px 12px', minWidth: 140 }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 7,
+            marginBottom: aqi.cls.label ? 5 : 0,
+          }}>
+            <span style={{
+              display: 'inline-block',
+              width: 10,
+              height: 10,
+              borderRadius: '50%',
+              backgroundColor: aqi.cls.color,
+              flexShrink: 0,
+            }} />
+            <span style={{ fontWeight: 700, fontSize: 13, color: '#111827', lineHeight: 1.2 }}>
+              {sensor.name}
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 12, color: '#374151', fontWeight: 600 }}>{aqi.cls.label}</span>
             {aqi.index !== null && (
-              <span className="text-white/70 text-xs">
-                ({scale === 'caqi' ? `CAQI ${aqi.index}` : `GIOŚ ${aqi.index}`})
+              <span style={{
+                fontSize: 11,
+                color: '#6b7280',
+                background: '#f3f4f6',
+                borderRadius: 4,
+                padding: '1px 5px',
+              }}>
+                {scale === 'caqi' ? `CAQI ${aqi.index}` : `GIOŚ ${aqi.index}`}
               </span>
             )}
           </div>
           {offline && (
-            <div className="text-xs text-white/70 mt-1 italic">Czujnik offline</div>
+            <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 3 }}>Offline</div>
           )}
         </div>
       </Tooltip>
