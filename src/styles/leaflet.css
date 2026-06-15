@@ -1,0 +1,8 @@
+/* src/styles/leaflet.css */
+.leaflet-container {
+  font-family: inherit;
+}
+
+.marker-offline {
+  stroke-dasharray: 4 3;
+}
