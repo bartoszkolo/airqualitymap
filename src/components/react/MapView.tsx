@@ -1,4 +1,5 @@
 // src/components/react/MapView.tsx
+import { memo } from 'react';
 import { MapContainer, TileLayer, LayerGroup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { SensorMarker } from './SensorMarker';
@@ -13,7 +14,7 @@ interface MapViewProps {
 
 const GNIEZNO_CENTER: [number, number] = [52.535, 17.595];
 
-export function MapView({ sensors, scale, selectedId, onMarkerClick }: MapViewProps) {
+export const MapView = memo(function MapView({ sensors, scale, selectedId, onMarkerClick }: MapViewProps) {
   return (
     <div className="flex-1 relative">
       <MapContainer
@@ -41,4 +42,4 @@ export function MapView({ sensors, scale, selectedId, onMarkerClick }: MapViewPr
       </MapContainer>
     </div>
   );
-}
+});

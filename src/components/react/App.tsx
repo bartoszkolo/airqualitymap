@@ -73,7 +73,7 @@ export function App() {
       )}
 
       {error && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-destructive text-destructive-foreground px-4 py-2 rounded-lg shadow-lg z-50">
+        <div role="alert" className="fixed top-20 left-1/2 -translate-x-1/2 bg-destructive text-destructive-foreground px-4 py-2 rounded-lg shadow-lg z-50">
           Błąd połączenia: {error}
         </div>
       )}

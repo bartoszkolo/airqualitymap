@@ -1,4 +1,5 @@
 // src/components/react/PollutantStrip.tsx
+import { memo } from 'react';
 import { Badge } from './ui/badge';
 import {
   Tooltip,
@@ -7,7 +8,7 @@ import {
   TooltipTrigger,
 } from './ui/tooltip';
 import { HelpCircle } from 'lucide-react';
-import { pollutantInfo, percentOfNorm } from '@/lib/content';
+import { pollutantInfo } from '@/lib/content';
 
 interface PollutantStripProps {
   pm10: number | null;
@@ -30,7 +31,7 @@ const POLLUTANTS: { key: PollutantKey; label: string }[] = [
   { key: 'pm1_0', label: 'PM1' },
 ];
 
-export function PollutantStrip({ pm10, pm25, pm1, selected, onSelect }: PollutantStripProps) {
+export const PollutantStrip = memo(function PollutantStrip({ pm10, pm25, pm1, selected, onSelect }: PollutantStripProps) {
   const values = { pm10, pm25, pm1_0: pm1 };
 
   return (
@@ -38,8 +39,15 @@ export function PollutantStrip({ pm10, pm25, pm1, selected, onSelect }: Pollutan
       {POLLUTANTS.map(({ key, label }) => {
         const value = values[key];
         const info = pollutantInfo[key];
-        const pct = percentOfNorm(key === 'pm1_0' ? 'pm10' : key, value);
         const isSelected = selected === key;
+
+        // PM1 has no EU norm - show special badge
+        const showNoNormBadge = key === 'pm1_0';
+        const pct = !showNoNormBadge
+          ? (key === 'pm10'
+              ? (value && value > 0 ? Math.round((value / 50) * 100) : null)
+              : (value && value > 0 ? Math.round((value / 25) * 100) : null))
+          : null;
 
         return (
           <TooltipProvider key={key}>
@@ -47,9 +55,12 @@ export function PollutantStrip({ pm10, pm25, pm1, selected, onSelect }: Pollutan
               <TooltipTrigger asChild>
                 <button
                   onClick={() => onSelect(key)}
+                  aria-pressed={isSelected}
+                  aria-label={`Wybierz ${label}, bieżąca wartość: ${formatValue(value)} µg/m³`}
                   className={`
-                    flex-1 flex flex-col items-center py-3 px-3 rounded-xl
+                    flex-1 flex flex-col items-center min-h-[44px] py-3 px-3 rounded-xl
                     border transition-all duration-200
+                    focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none
                     ${isSelected
                       ? 'border-primary bg-primary/10 shadow-md ring-1 ring-primary/20'
                       : 'border-border bg-card hover:border-primary/30 hover:bg-accent/5'
@@ -59,21 +70,31 @@ export function PollutantStrip({ pm10, pm25, pm1, selected, onSelect }: Pollutan
                   {/* Name with help icon */}
                   <div className="flex items-center gap-1 mb-2">
                     <span className="text-sm font-semibold">{label}</span>
-                    <HelpCircle className="h-3 w-3 text-muted-foreground opacity-60" />
+                    <HelpCircle
+                      className="h-3 w-3 text-muted-foreground opacity-60"
+                      aria-hidden="true"
+                    />
                   </div>
 
                   {/* Value */}
                   <div className="text-2xl font-bold tracking-tight">{formatValue(value)}</div>
 
                   {/* Norm badge - mini */}
-                  {pct !== null && (
+                  {showNoNormBadge ? (
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] h-5 px-1.5 mt-2 font-medium"
+                    >
+                      Bez normy
+                    </Badge>
+                  ) : pct !== null && pct > 0 ? (
                     <Badge
                       variant={pct > 100 ? 'destructive' : pct > 50 ? 'warning' : 'success'}
                       className="text-[10px] h-5 px-1.5 mt-2 font-medium"
                     >
-                      {pct.toFixed(0)}%
+                      {pct}%
                     </Badge>
-                  )}
+                  ) : null}
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-xs text-xs p-3">
@@ -89,4 +110,4 @@ export function PollutantStrip({ pm10, pm25, pm1, selected, onSelect }: Pollutan
       })}
     </div>
   );
-}
+});

@@ -1,5 +1,7 @@
 // src/components/react/SensorMarker.tsx
 import { CircleMarker, Tooltip, useMap } from 'react-leaflet';
+import { useRef, useEffect, useCallback } from 'react';
+import { memo } from 'react';
 import { computeAqi } from '@/lib/aqi';
 import type { Sensor, Scale } from '@/lib/types';
 
@@ -10,15 +12,27 @@ interface SensorMarkerProps {
   selected: boolean;
 }
 
-export function SensorMarker({ sensor, scale, onClick, selected }: SensorMarkerProps) {
+export const SensorMarker = memo(function SensorMarker({
+  sensor,
+  scale,
+  onClick,
+  selected,
+}: SensorMarkerProps) {
   const map = useMap();
+  const mapRef = useRef(map);
+
+  // Keep ref in sync without causing re-renders
+  useEffect(() => {
+    mapRef.current = map;
+  }, [map]);
+
   const aqi = computeAqi(scale, { pm10: sensor.pm10, pm25: sensor.pm25 });
   const offline = sensor.active === false;
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     onClick();
-    map.panTo([sensor.lat, sensor.lon]);
-  };
+    mapRef.current?.panTo([sensor.lat, sensor.lon]);
+  }, [onClick]);
 
   const pathOptions = offline
     ? {
@@ -99,4 +113,4 @@ export function SensorMarker({ sensor, scale, onClick, selected }: SensorMarkerP
       </CircleMarker>
     </>
   );
-}
+});

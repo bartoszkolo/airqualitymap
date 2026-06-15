@@ -1,5 +1,5 @@
 // src/components/react/MiniChart.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Card, CardContent } from './ui/card';
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
 import {
@@ -40,21 +40,42 @@ function transformDataRange(points: HistoryPoint, pollutant: 'pm10' | 'pm25' | '
   }));
 }
 
-export function MiniChart({ sensorId, selectedPollutant }: MiniChartProps) {
+export const MiniChart = memo(function MiniChart({ sensorId, selectedPollutant }: MiniChartProps) {
   const [range, setRange] = useState<ChartRange>('24h');
   const [data, setData] = useState<HistoryResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const abortController = new AbortController();
     setLoading(true);
-    fetch(`/api/history.json?id=${encodeURIComponent(sensorId)}&range=${range}`)
-      .then((res) => res.json())
+
+    fetch(`/api/history.json?id=${encodeURIComponent(sensorId)}&range=${range}`, {
+      signal: abortController.signal,
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((json: HistoryResponse & { error?: string }) => {
         if (json.error) throw new Error(json.error);
-        setData(json);
+        if (!abortController.signal.aborted) {
+          setData(json);
+        }
       })
-      .catch(() => setData(null))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        if (!abortController.signal.aborted) {
+          setData(null);
+        }
+      })
+      .finally(() => {
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      abortController.abort();
+    };
   }, [sensorId, range]);
 
   const chartData = data ? transformDataRange(data.points, selectedPollutant, range) : [];
@@ -73,12 +94,12 @@ export function MiniChart({ sensorId, selectedPollutant }: MiniChartProps) {
         {/* Chart */}
         <div className="mt-3">
           {loading ? (
-            <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
-              Ładowanie...
+            <div role="status" aria-live="polite" className="h-32 flex items-center justify-center text-muted-foreground text-sm">
+              Ładowanie danych wykresu...
             </div>
           ) : chartData.length === 0 ? (
             <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
-              Brak danych
+              Brak danych historycznych
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={128}>
@@ -130,4 +151,4 @@ export function MiniChart({ sensorId, selectedPollutant }: MiniChartProps) {
       </CardContent>
     </Card>
   );
-}
+});

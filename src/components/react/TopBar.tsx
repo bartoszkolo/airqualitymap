@@ -1,5 +1,5 @@
 // src/components/react/TopBar.tsx
-import { Button } from './ui/button';
+import { memo } from 'react';
 import type { Scale } from '@/lib/types';
 
 interface TopBarProps {
@@ -8,7 +8,7 @@ interface TopBarProps {
   updatedAt?: number;
 }
 
-export function TopBar({ scale, onScaleChange, updatedAt }: TopBarProps) {
+export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: TopBarProps) {
   const timeStr = updatedAt
     ? new Date(updatedAt).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })
     : '';
@@ -18,7 +18,7 @@ export function TopBar({ scale, onScaleChange, updatedAt }: TopBarProps) {
       {/* Logo section */}
       <div className="flex items-center gap-3">
         <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 shadow-lg">
-          <span className="text-xl">🌬️</span>
+          <span className="text-xl" aria-hidden="true">🌬️</span>
         </div>
         <div>
           <h1 className="font-bold text-lg leading-tight">Powietrze Gniezno</h1>
@@ -29,26 +29,38 @@ export function TopBar({ scale, onScaleChange, updatedAt }: TopBarProps) {
       <div className="flex-1" />
 
       {/* Scale toggle */}
-      <div className="flex items-center gap-2 bg-muted/50 rounded-full p-1 border border-border/50">
+      <div
+        role="tablist"
+        aria-label="Wybór skali jakości powietrza"
+        className="flex items-center gap-2 bg-muted/50 rounded-full p-1 border border-border/50"
+      >
         <button
+          role="tab"
+          aria-selected={scale === 'caqi'}
+          aria-label="Skala CAQI - Common Air Quality Index"
           onClick={() => onScaleChange('caqi')}
           className={`
-            px-4 py-2 rounded-full text-sm font-medium transition-all
+            min-h-[44px] px-4 py-3 rounded-full text-sm font-medium transition-all
+            focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none
             ${scale === 'caqi'
               ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
+              : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
             }
           `}
         >
           CAQI
         </button>
         <button
+          role="tab"
+          aria-selected={scale === 'gios'}
+          aria-label="Skala GIOŚ - Polski indeks jakości powietrza"
           onClick={() => onScaleChange('gios')}
           className={`
-            px-4 py-2 rounded-full text-sm font-medium transition-all
+            min-h-[44px] px-4 py-3 rounded-full text-sm font-medium transition-all
+            focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none
             ${scale === 'gios'
               ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
+              : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
             }
           `}
         >
@@ -58,9 +70,9 @@ export function TopBar({ scale, onScaleChange, updatedAt }: TopBarProps) {
 
       {/* Update time */}
       {timeStr && (
-        <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+        <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg min-h-[44px]">
+          <span className="relative flex h-2 w-2 motion-reduce:static">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 motion-reduce:hidden"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
           </span>
           <span>Aktualizacja {timeStr}</span>
@@ -68,4 +80,4 @@ export function TopBar({ scale, onScaleChange, updatedAt }: TopBarProps) {
       )}
     </div>
   );
-}
+});

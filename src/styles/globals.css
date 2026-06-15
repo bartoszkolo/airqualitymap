@@ -7,47 +7,55 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 222 47% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 199 89% 48%;
+    --popover-foreground: 222 47% 11%;
+    /* Neutral slate primary instead of clashing sky blue */
+    --primary: 215 25% 27%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 199 89% 48%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 215 25% 27%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 199 89% 48%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 215 25% 27%;
     --radius: 0.5rem;
+
+    /* AQI Color Scale - for reference */
+    --aqi-excellent: 142 71% 45%;
+    --aqi-good: 84 76% 44%;
+    --aqi-moderate: 48 96% 53%;
+    --aqi-poor: 25 95% 53%;
+    --aqi-hazardous: 0 72% 51%;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 199 89% 48%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 199 89% 48%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 199 89% 48%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 210 40% 98%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 215 25% 27%;
   }
 }
 
@@ -56,6 +64,20 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* 8px Spacing Grid */
+@layer utilities {
+  .spacing-xs { padding: 4px; }
+  .spacing-sm { padding: 8px; }
+  .spacing-md { padding: 16px; }
+  .spacing-lg { padding: 24px; }
+  .spacing-xl { padding: 32px; }
+
+  .gap-xs { gap: 4px; }
+  .gap-sm { gap: 8px; }
+  .gap-md { gap: 16px; }
+  .gap-lg { gap: 24px; }
 }
 
 /* Leaflet marker pulse animation */
@@ -70,8 +92,10 @@
   }
 }
 
-.leaflet-pulse-ring svg circle {
-  animation: pulse-ring 1.8s ease-out infinite;
+@media (prefers-reduced-motion: no-preference) {
+  .leaflet-pulse-ring svg circle {
+    animation: pulse-ring 1.8s ease-out infinite;
+  }
 }
 
 .leaflet-marker-selected {
@@ -108,4 +132,21 @@
 
 .leaflet-tooltip-right:before {
   border-right-color: #1e293b !important;
+}
+
+/* Respect motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visible improvements */
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
 }
