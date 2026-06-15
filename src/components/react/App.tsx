@@ -18,6 +18,21 @@ function MapFallback() {
   );
 }
 
+function SplashScreen({ hiding }: { hiding: boolean }) {
+  return (
+    <div className={`splash-overlay${hiding ? ' splash-overlay--out' : ''}`} aria-hidden="true">
+      <div className="splash-content">
+        <img src="/logo.png" alt="Powietrze Gniezno" className="splash-logo" />
+        <div className="splash-dots">
+          <span className="splash-dot" />
+          <span className="splash-dot" />
+          <span className="splash-dot" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function App() {
   const [sensors, setSensors] = useState<Sensor[]>([]);
   const [scale, setScale] = useState<Scale>('caqi');
@@ -26,7 +41,10 @@ export function App() {
   const [sidebarClosing, setSidebarClosing] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<number | undefined>();
   const [error, setError] = useState<string | null>(null);
+  const [splashHiding, setSplashHiding] = useState(false);
+  const [splashGone, setSplashGone] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const firstLoad = useRef(true);
 
   const selectedSensor = sensors.find((s) => s.id === selectedId) || null;
   const displayedSensor = sensors.find((s) => s.id === displayedId) || null;
@@ -66,6 +84,11 @@ export function App() {
         setSensors(data.sensors ?? []);
         setUpdatedAt(data.updatedAt ?? Date.now());
         setError(null);
+        if (firstLoad.current) {
+          firstLoad.current = false;
+          setSplashHiding(true);
+          setTimeout(() => setSplashGone(true), 600);
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
         console.error('Błąd pobierania czujników', e);
@@ -79,6 +102,7 @@ export function App() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
+      {!splashGone && <SplashScreen hiding={splashHiding} />}
       <TopBar
         scale={scale}
         onScaleChange={setScale}
