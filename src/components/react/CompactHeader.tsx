@@ -13,6 +13,9 @@ interface CompactHeaderProps {
 
 export const CompactHeader = memo(function CompactHeader({ sensor, scale }: CompactHeaderProps) {
   const aqi = computeAqi(scale, { pm10: sensor.pm10, pm25: sensor.pm25 });
+  const offline = sensor.active === false;
+  const cardColor = offline ? '#9ca3af' : aqi.cls.color;
+  const cardTextColor = offline ? '#ffffff' : aqi.cls.textColor;
   const advice = getHealthAdvice(aqi.index);
   const when = new Date(sensor.ts).toLocaleString('pl-PL', {
     day: '2-digit',
@@ -31,23 +34,22 @@ export const CompactHeader = memo(function CompactHeader({ sensor, scale }: Comp
           <img
             src={photo}
             alt={sensor.name}
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover${offline ? ' grayscale' : ''}`}
             draggable={false}
           />
-          {/* Subtle bottom fade to blend with info section */}
           <div
             className="absolute bottom-0 left-0 right-0 h-8"
-            style={{ background: `linear-gradient(to bottom, transparent, ${aqi.cls.color})` }}
+            style={{ background: `linear-gradient(to bottom, transparent, ${cardColor})` }}
           />
         </div>
       )}
 
-      {/* Bottom: solid AQI color info section */}
+      {/* Bottom: solid color info section */}
       <div
         className="px-4 py-3 relative overflow-hidden"
         style={{
-          background: `linear-gradient(160deg, ${aqi.cls.color} 0%, ${aqi.cls.color}dd 100%)`,
-          color: aqi.cls.textColor,
+          background: `linear-gradient(160deg, ${cardColor} 0%, ${cardColor}dd 100%)`,
+          color: cardTextColor,
         }}
       >
         {/* Emoji background accent */}

@@ -73,9 +73,12 @@ export const SensorMarker = memo(function SensorMarker({
   const aqi = computeAqi(scale, { pm10: sensor.pm10, pm25: sensor.pm25 });
   const offline = sensor.active === false;
 
+  const markerColor = offline ? '#9ca3af' : aqi.cls.color;
+  const markerTextColor = offline ? '#ffffff' : aqi.cls.textColor;
+
   const icon = useMemo(
-    () => createSensorIcon(aqi.cls.color, aqi.cls.textColor, aqi.index, selected, offline),
-    [aqi.cls.color, aqi.cls.textColor, aqi.index, selected, offline]
+    () => createSensorIcon(markerColor, markerTextColor, aqi.index, selected, offline),
+    [markerColor, markerTextColor, aqi.index, selected, offline]
   );
 
   // Aktualizuj ikonę imperatywnie — unika migania przy re-mount markera
