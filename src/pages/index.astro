@@ -1,0 +1,355 @@
+---
+// Mapa jakości powietrza — czujniki w Gnieźnie.
+// Dane pobierane z /api/sensors.json (proxy do ThingsBoard).
+const title = 'Jakość powietrza — Gniezno';
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0aa5b5" />
+    <title>{title}</title>
+    <meta name="description" content="Mapa czujników jakości powietrza w Gnieźnie — PM10, PM2.5, skala CAQI / GIOŚ." />
+  </head>
+  <body>
+    <div id="app">
+      <header id="topbar">
+        <div class="brand">
+          <span class="logo">🌬️</span>
+          <span class="brand-name">Gniezno&nbsp;· powietrze</span>
+        </div>
+        <div class="scale-toggle" role="group" aria-label="Skala jakości powietrza">
+          <button type="button" data-scale="caqi" class="active">CAQI</button>
+          <button type="button" data-scale="gios">GIOŚ</button>
+        </div>
+        <div id="updated" class="updated"></div>
+      </header>
+
+      <main id="map" aria-label="Mapa czujników"></main>
+
+      <div id="legend" class="legend" aria-label="Legenda skali"></div>
+
+      <aside id="panel" class="panel" aria-hidden="true">
+        <div class="panel-handle"></div>
+        <button id="panel-close" class="panel-close" aria-label="Zamknij">×</button>
+        <div id="panel-content"></div>
+      </aside>
+    </div>
+
+    <script>
+      import 'leaflet/dist/leaflet.css';
+      import L from 'leaflet';
+      import { computeAqi, scaleLegend, percentOfNorm, type Scale } from '../lib/aqi';
+      import type { Sensor, SensorsResponse, HistoryPoint } from '../lib/types';
+
+      const SENSORS_URL = '/api/sensors.json';
+      const HISTORY_URL = '/api/history.json';
+      const REFRESH_MS = 60_000;
+
+      let scale: Scale = 'caqi';
+      let sensors: Sensor[] = [];
+      let selectedId: string | null = null;
+      let chartPollutant: 'pm10' | 'pm25' = 'pm10';
+      const historyCache = new Map<string, HistoryPoint[]>();
+
+      const markerLayer = L.layerGroup();
+      const markers = new Map<string, L.CircleMarker>();
+
+      // ---- mapa (wyśrodkowana na Gnieźnie) ----
+      const map = L.map('map', { zoomControl: true }).setView([52.535, 17.595], 12);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        maxZoom: 19,
+      }).addTo(map);
+      markerLayer.addTo(map);
+
+      function renderMarkers(fit = false) {
+        markerLayer.clearLayers();
+        markers.clear();
+        const bounds: L.LatLngTuple[] = [];
+
+        for (const s of sensors) {
+          const aqi = computeAqi(scale, { pm10: s.pm10, pm25: s.pm25 });
+          const offline = s.active === false;
+          const m = L.circleMarker([s.lat, s.lon], {
+            radius: 11,
+            weight: 2,
+            color: '#ffffff',
+            fillColor: aqi.cls.color,
+            fillOpacity: offline ? 0.45 : 1,
+            className: offline ? 'marker-offline' : '',
+          });
+          m.bindTooltip(
+            `<b>${s.name}</b><br>${aqi.cls.label}` +
+              (aqi.index != null && scale === 'caqi' ? ` · CAQI ${aqi.index}` : '') +
+              (offline ? '<br><i>offline</i>' : ''),
+            { direction: 'top', offset: [0, -6] }
+          );
+          m.on('click', () => openPanel(s.id));
+          m.addTo(markerLayer);
+          markers.set(s.id, m);
+          bounds.push([s.lat, s.lon]);
+        }
+        if (fit && bounds.length) map.fitBounds(bounds, { padding: [70, 70] });
+      }
+
+      function renderLegend() {
+        const el = document.getElementById('legend')!;
+        el.innerHTML = scaleLegend(scale)
+          .map((c) => `<span class="legend-item"><i style="background:${c.color}"></i>${c.label}</span>`)
+          .join('');
+      }
+
+      function setUpdated(ts: number) {
+        const t = new Date(ts).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('updated')!.textContent = `Aktualizacja ${t}`;
+      }
+
+      // ---- panel ----
+      function fmt(v: number | null | undefined, unit = '', digits = 0): string {
+        if (v == null || Number.isNaN(v)) return '—';
+        return `${v.toFixed(digits)}${unit}`;
+      }
+
+      function chartSvg(points: HistoryPoint[]): string {
+        const vals = points.map((h) => (h[chartPollutant] ?? 0) as number);
+        if (vals.length < 2) return '<p class="muted">Brak historii z ostatnich 24h</p>';
+        const max = Math.max(1, ...vals);
+        const W = 300, H = 90, P = 4;
+        const x = (i: number) => P + (i / (vals.length - 1)) * (W - 2 * P);
+        const y = (v: number) => H - P - (v / max) * (H - 2 * P);
+        const pts = vals.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`);
+        const area = `M ${x(0).toFixed(1)},${(H - P).toFixed(1)} L ${pts.join(' L ')} L ${x(vals.length - 1).toFixed(1)},${(H - P).toFixed(1)} Z`;
+        return `
+          <svg viewBox="0 0 ${W} ${H}" class="chart" preserveAspectRatio="none">
+            <path d="${area}" class="chart-area" />
+            <polyline points="${pts.join(' ')}" class="chart-line" />
+          </svg>
+          <div class="chart-meta"><span>max ${max.toFixed(0)} µg/m³</span><span>teraz ${vals[vals.length - 1].toFixed(0)} µg/m³</span></div>`;
+      }
+
+      function row(label: string, p: 'pm10' | 'pm25', value: number | null): string {
+        const pct = percentOfNorm(p, value);
+        return `
+          <button type="button" class="part-row ${chartPollutant === p ? 'sel' : ''}" data-poll="${p}">
+            <span class="part-name">${label}</span>
+            <span class="part-pct">${pct == null ? '' : pct + '% normy'}</span>
+            <span class="part-val">${fmt(value, '', 0)}<small>µg/m³</small></span>
+          </button>`;
+      }
+
+      function renderChart(id: string) {
+        if (selectedId !== id) return;
+        const wrap = document.getElementById('chart-wrap');
+        if (!wrap) return;
+        const pts = historyCache.get(id);
+        wrap.innerHTML = pts ? chartSvg(pts) : '<p class="muted">Ładowanie…</p>';
+      }
+
+      async function ensureHistory(id: string) {
+        if (historyCache.has(id)) return renderChart(id);
+        try {
+          const res = await fetch(`${HISTORY_URL}?id=${encodeURIComponent(id)}`);
+          const data = (await res.json()) as { points?: HistoryPoint[] };
+          historyCache.set(id, data.points ?? []);
+        } catch {
+          historyCache.set(id, []);
+        }
+        renderChart(id);
+      }
+
+      function openPanel(id: string) {
+        const s = sensors.find((x) => x.id === id);
+        if (!s) return;
+        selectedId = id;
+        const aqi = computeAqi(scale, { pm10: s.pm10, pm25: s.pm25 });
+        const when = new Date(s.ts).toLocaleString('pl-PL', {
+          day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+        });
+        const indexLine = aqi.index == null ? '' : scale === 'caqi' ? `CAQI ${aqi.index}` : 'Indeks GIOŚ';
+        const offline = s.active === false;
+
+        document.getElementById('panel-content')!.innerHTML = `
+          <div class="panel-hero" style="background:${aqi.cls.color};color:${aqi.cls.textColor}">
+            <div class="hero-name">${s.name}</div>
+            <div class="hero-label">${aqi.cls.label}</div>
+            <div class="hero-index">${indexLine}</div>
+          </div>
+          <div class="panel-body">
+            <div class="live">
+              <span class="dot ${offline ? 'off' : ''}"></span>
+              ${offline ? 'Offline · ostatni pomiar' : 'Pomiar na żywo'} · ${when}
+            </div>
+
+            <h3>Pyły zawieszone</h3>
+            ${row('PM10', 'pm10', s.pm10)}
+            ${row('PM2.5', 'pm25', s.pm25)}
+            <div class="part-row static">
+              <span class="part-name">PM1</span><span class="part-pct"></span>
+              <span class="part-val">${fmt(s.pm1, '', 0)}<small>µg/m³</small></span>
+            </div>
+
+            <h3>Historia ${chartPollutant === 'pm10' ? 'PM10' : 'PM2.5'} (24h)</h3>
+            <div id="chart-wrap"><p class="muted">Ładowanie…</p></div>
+          </div>`;
+
+        document.querySelectorAll<HTMLButtonElement>('.part-row[data-poll]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            chartPollutant = btn.dataset.poll as 'pm10' | 'pm25';
+            openPanel(id);
+          });
+        });
+
+        const panel = document.getElementById('panel')!;
+        panel.classList.add('open');
+        panel.setAttribute('aria-hidden', 'false');
+        map.panTo([s.lat, s.lon], { animate: true });
+        ensureHistory(id);
+      }
+
+      function closePanel() {
+        selectedId = null;
+        const panel = document.getElementById('panel')!;
+        panel.classList.remove('open');
+        panel.setAttribute('aria-hidden', 'true');
+      }
+
+      document.getElementById('panel-close')!.addEventListener('click', closePanel);
+
+      document.querySelectorAll<HTMLButtonElement>('.scale-toggle button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          scale = btn.dataset.scale as Scale;
+          document.querySelectorAll('.scale-toggle button').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderMarkers();
+          renderLegend();
+          if (selectedId) openPanel(selectedId);
+        });
+      });
+
+      // ---- ładowanie danych ----
+      async function loadSensors(initial = false) {
+        try {
+          const res = await fetch(SENSORS_URL);
+          const data = (await res.json()) as SensorsResponse & { error?: string };
+          if (data.error) throw new Error(data.error);
+          sensors = data.sensors ?? [];
+          setUpdated(data.updatedAt ?? Date.now());
+          renderMarkers(initial);
+          if (selectedId) openPanel(selectedId);
+        } catch (e) {
+          console.error('Błąd pobierania czujników', e);
+          if (initial) {
+            document.getElementById('updated')!.textContent = 'Błąd połączenia z ThingsBoard';
+          }
+        }
+      }
+
+      renderLegend();
+      loadSensors(true);
+      setInterval(() => {
+        historyCache.clear(); // świeża historia przy następnym otwarciu
+        loadSensors(false);
+      }, REFRESH_MS);
+    </script>
+
+    <style is:global>
+      :root {
+        --bg: #f4f6f8;
+        --card: #ffffff;
+        --text: #1f2933;
+        --muted: #7b8794;
+        --accent: #0aa5b5;
+        --shadow: 0 6px 24px rgba(0, 0, 0, 0.14);
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--text); }
+      #app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+      #topbar {
+        display: flex; align-items: center; gap: 12px;
+        padding: 10px 16px; padding-top: max(10px, env(safe-area-inset-top));
+        background: var(--card); box-shadow: 0 2px 8px rgba(0,0,0,.08); z-index: 1000;
+      }
+      .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 17px; white-space: nowrap; }
+      .brand .logo { font-size: 22px; }
+      .updated { margin-left: auto; color: var(--muted); font-size: 12px; text-align: right; }
+      .scale-toggle { display: inline-flex; border: 1px solid #d7dee3; border-radius: 999px; overflow: hidden; }
+      .scale-toggle button { border: 0; background: transparent; padding: 7px 18px; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; }
+      .scale-toggle button.active { background: var(--accent); color: #fff; }
+
+      #map { flex: 1; width: 100%; z-index: 1; }
+      .marker-offline { stroke-dasharray: 3 3; }
+
+      .legend {
+        position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
+        display: flex; gap: 2px; background: var(--card); padding: 6px 8px; border-radius: 10px;
+        box-shadow: var(--shadow); z-index: 800; flex-wrap: wrap; justify-content: center; max-width: 94vw;
+      }
+      .legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 2px 6px; white-space: nowrap; }
+      .legend-item i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+
+      .panel {
+        position: absolute; top: 0; bottom: 0; left: 0; width: 360px; max-width: 88vw;
+        background: var(--card); box-shadow: var(--shadow); z-index: 1200;
+        transform: translateX(-105%); transition: transform .28s ease; overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .panel.open { transform: translateX(0); }
+      .panel-handle { display: none; }
+      .panel-close {
+        position: absolute; top: 10px; right: 10px; z-index: 2; border: 0; background: rgba(0,0,0,.18);
+        color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 22px; line-height: 1; cursor: pointer;
+      }
+      .panel-hero { padding: 26px 20px 18px; }
+      .hero-name { font-size: 22px; font-weight: 700; line-height: 1.2; padding-right: 36px; }
+      .hero-label { margin-top: 14px; font-size: 22px; font-weight: 800; }
+      .hero-index { opacity: .9; font-size: 14px; margin-top: 2px; }
+      .panel-body { padding: 16px 20px 36px; }
+      .panel-body h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 22px 0 8px; }
+      .live { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+      .live .dot { width: 8px; height: 8px; border-radius: 50%; background: #2bb673; }
+      .live .dot.off { background: #9ca3af; }
+
+      .part-row {
+        display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; width: 100%;
+        text-align: left; border: 0; background: #f7f9fa; border-radius: 12px; padding: 13px 14px; margin-bottom: 8px;
+        cursor: pointer; font-size: 15px;
+      }
+      .part-row.static { cursor: default; }
+      .part-row.sel { outline: 2px solid var(--accent); background: #eafafc; }
+      .part-name { font-weight: 600; }
+      .part-pct { color: var(--muted); font-size: 13px; }
+      .part-val { font-weight: 700; font-size: 20px; }
+      .part-val small { font-weight: 500; font-size: 11px; color: var(--muted); margin-left: 2px; }
+
+      .chart { width: 100%; height: 90px; display: block; }
+      .chart-area { fill: rgba(10,165,181,.18); }
+      .chart-line { fill: none; stroke: var(--accent); stroke-width: 2; vector-effect: non-scaling-stroke; }
+      .chart-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; margin-top: 4px; }
+      .muted { color: var(--muted); }
+
+      /* ---- mobile: panel jako bottom-sheet ---- */
+      @media (max-width: 600px) {
+        .brand-name { display: none; }
+        .scale-toggle button { padding: 7px 14px; }
+        .panel {
+          top: auto; bottom: 0; left: 0; right: 0; width: 100%; max-width: none;
+          height: auto; max-height: 80dvh; border-radius: 18px 18px 0 0;
+          transform: translateY(105%); padding-bottom: env(safe-area-inset-bottom);
+        }
+        .panel.open { transform: translateY(0); }
+        .panel-handle {
+          display: block; width: 42px; height: 5px; border-radius: 3px; background: #d7dee3;
+          margin: 10px auto 0; position: sticky; top: 0;
+        }
+        .panel-hero { padding-top: 8px; }
+        .legend { bottom: 10px; gap: 0; padding: 5px 6px; }
+        .legend-item { font-size: 11px; padding: 2px 4px; }
+      }
+    </style>
+  </body>
+</html>

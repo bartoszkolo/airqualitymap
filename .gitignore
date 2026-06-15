@@ -1,0 +1,20 @@
+# build output
+dist/
+.astro/
+
+# deps
+node_modules/
+
+# cloudflare / wrangler (Etap 2)
+.wrangler/
+.dev.vars
+
+# env / secrets — NIGDY nie commitujemy danych dostępowych do ThingsBoard
+.env
+.env.*
+*.local
+
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/
