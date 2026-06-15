@@ -251,6 +251,10 @@
 .leaflet-attribution-flag {
   display: none !important;
 }
+.leaflet-control-attribution a[href*="leafletjs"] svg,
+.leaflet-control-attribution svg {
+  display: none !important;
+}
 
 /* Sensor marker tooltip — clean white card */
 .leaflet-tooltip {

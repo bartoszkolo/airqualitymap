@@ -45,6 +45,7 @@ export function App() {
   const [splashGone, setSplashGone] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const firstLoad = useRef(true);
+  const splashStart = useRef(Date.now());
 
   const selectedSensor = sensors.find((s) => s.id === selectedId) || null;
   const displayedSensor = sensors.find((s) => s.id === displayedId) || null;
@@ -86,8 +87,12 @@ export function App() {
         setError(null);
         if (firstLoad.current) {
           firstLoad.current = false;
-          setSplashHiding(true);
-          setTimeout(() => setSplashGone(true), 600);
+          const elapsed = Date.now() - splashStart.current;
+          const remaining = Math.max(0, 2500 - elapsed);
+          setTimeout(() => {
+            setSplashHiding(true);
+            setTimeout(() => setSplashGone(true), 600);
+          }, remaining);
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));

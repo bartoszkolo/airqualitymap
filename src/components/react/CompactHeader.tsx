@@ -40,7 +40,7 @@ export const CompactHeader = memo(function CompactHeader({ sensor, scale }: Comp
         className="absolute inset-0"
         style={{
           background: photo
-            ? `linear-gradient(to bottom, ${aqi.cls.color}77 0%, ${aqi.cls.color}bb 55%, ${aqi.cls.color}ee 100%)`
+            ? `linear-gradient(to bottom, transparent 0%, ${aqi.cls.color}55 40%, ${aqi.cls.color}cc 70%, ${aqi.cls.color}f0 100%)`
             : `linear-gradient(160deg, ${aqi.cls.color} 0%, ${aqi.cls.color}99 60%, ${aqi.cls.color}bb 100%)`,
         }}
       />
