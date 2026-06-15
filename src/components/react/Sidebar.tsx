@@ -45,23 +45,23 @@ export function Sidebar({ sensor, scale, closing, onClose }: SidebarProps) {
         <ChevronLeft className="h-4 w-4 text-foreground" />
       </button>
 
-      {/* CompactHeader — edge-to-edge, no padding */}
-      <CompactHeader sensor={sensor} scale={scale} />
-
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
-        <PollutantStrip
-          pm10={sensor.pm10}
-          pm25={sensor.pm25}
-          pm1={sensor.pm1}
-          selected={selectedPollutant}
-          onSelect={setSelectedPollutant}
-        />
-        <MiniChart
-          sensorId={sensor.id}
-          selectedPollutant={selectedPollutant}
-        />
-        <EducationCard scale={scale} />
+      <div className="flex-1 overflow-y-auto space-y-3">
+        <CompactHeader sensor={sensor} scale={scale} />
+        <div className="px-3 pb-3 space-y-3">
+          <PollutantStrip
+            pm10={sensor.pm10}
+            pm25={sensor.pm25}
+            pm1={sensor.pm1}
+            selected={selectedPollutant}
+            onSelect={setSelectedPollutant}
+          />
+          <MiniChart
+            sensorId={sensor.id}
+            selectedPollutant={selectedPollutant}
+          />
+          <EducationCard scale={scale} />
+        </div>
       </div>
     </div>
   );
