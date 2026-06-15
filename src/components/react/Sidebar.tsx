@@ -38,7 +38,7 @@ export function Sidebar({ sensor, scale, closing, onClose }: SidebarProps) {
       {/* External close tab — sticks out to the right of the sidebar */}
       <button
         onClick={onClose}
-        className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-full z-50 flex items-center justify-center bg-background border border-l-0 border-border rounded-r-xl shadow-md hover:bg-muted transition-colors"
+        className="absolute top-14 right-0 translate-x-full z-50 flex items-center justify-center bg-background border border-l-0 border-border rounded-r-xl shadow-md hover:bg-muted transition-colors"
         style={{ width: 28, paddingTop: 20, paddingBottom: 20 }}
         aria-label="Zamknij"
       >
