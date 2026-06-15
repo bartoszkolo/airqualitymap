@@ -33,8 +33,8 @@ export function CompactHeader({ sensor, scale }: CompactHeaderProps) {
 
       {/* Content */}
       <div className="relative z-10">
-        {/* Health advice message - prominent! */}
-        <p className="text-base font-semibold leading-snug opacity-95">{advice.advice}</p>
+        {/* Health advice message - subtle */}
+        <p className="text-xs font-medium leading-tight opacity-80">{advice.advice}</p>
 
         {/* Sensor name + emoji row */}
         <div className="flex items-center gap-3 mt-3 mb-1">
