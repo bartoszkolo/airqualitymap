@@ -59,7 +59,8 @@ export const PollutantStrip = memo(function PollutantStrip({ pm10, pm25, pm1, se
                   aria-label={`Wybierz ${label}, bieżąca wartość: ${formatValue(value)} µg/m³`}
                   className={`
                     flex-1 flex flex-col items-center min-h-[44px] py-3 px-3 rounded-xl
-                    border transition-all duration-200
+                    border transition-colors transition-shadow duration-150
+                    active:scale-95
                     focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none
                     ${isSelected
                       ? 'border-primary bg-primary/10 shadow-md ring-1 ring-primary/20'

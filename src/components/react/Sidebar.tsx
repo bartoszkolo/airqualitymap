@@ -1,5 +1,5 @@
 // src/components/react/Sidebar.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from './ui/button';
 import { CompactHeader } from './CompactHeader';
@@ -10,20 +10,32 @@ import { computeAqi } from '@/lib/aqi';
 import type { Sensor, Scale } from '@/lib/types';
 
 interface SidebarProps {
-  sensor: Sensor | null;
+  sensor: Sensor;
   scale: Scale;
+  closing: boolean;
   onClose: () => void;
 }
 
-export function Sidebar({ sensor, scale, onClose }: SidebarProps) {
+export function Sidebar({ sensor, scale, closing, onClose }: SidebarProps) {
   const [selectedPollutant, setSelectedPollutant] = useState<'pm10' | 'pm25' | 'pm1_0'>('pm10');
+  const [mounted, setMounted] = useState(false);
 
-  if (!sensor) return null;
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   const aqi = computeAqi(scale, { pm10: sensor.pm10, pm25: sensor.pm25 });
 
+  const translateClass = !mounted || closing ? '-translate-x-full' : 'translate-x-0';
+
   return (
-    <div className="fixed inset-y-0 left-0 w-full sm:w-96 bg-background/95 backdrop-blur-md shadow-2xl z-50 flex flex-col animate-in slide-in-from-left duration-300 ease-out">
+    <div className={`fixed inset-y-0 left-0 w-full sm:w-96 bg-background/95 backdrop-blur-md shadow-2xl z-50 flex flex-col sidebar-panel ${translateClass} ${closing ? 'sidebar-closing' : ''}`}>
+      {/* Drag handle — widoczny tylko na mobile (bottom-sheet) */}
+      <div className="sm:hidden flex justify-center pt-3 pb-1 flex-shrink-0" aria-hidden="true">
+        <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+      </div>
+
       {/* Close button - absolute, no space taken */}
       <button
         onClick={onClose}

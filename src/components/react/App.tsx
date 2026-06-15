@@ -1,5 +1,5 @@
 // src/components/react/App.tsx
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import type { Sensor, Scale, SensorsResponse } from '@/lib/types';
@@ -22,10 +22,40 @@ export function App() {
   const [sensors, setSensors] = useState<Sensor[]>([]);
   const [scale, setScale] = useState<Scale>('caqi');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [displayedId, setDisplayedId] = useState<string | null>(null);
+  const [sidebarClosing, setSidebarClosing] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<number | undefined>();
   const [error, setError] = useState<string | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const selectedSensor = sensors.find((s) => s.id === selectedId) || null;
+  const displayedSensor = sensors.find((s) => s.id === displayedId) || null;
+
+  const handleMarkerClick = (id: string) => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setSidebarClosing(false);
+    setSelectedId(id);
+    setDisplayedId(id);
+  };
+
+  const handleClose = () => {
+    setSelectedId(null);
+    setSidebarClosing(true);
+    closeTimerRef.current = setTimeout(() => {
+      setDisplayedId(null);
+      setSidebarClosing(false);
+      closeTimerRef.current = null;
+    }, 320); // 300ms animacja + 20ms bufor
+  };
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const loadSensors = async () => {
@@ -60,21 +90,32 @@ export function App() {
           sensors={sensors}
           scale={scale}
           selectedId={selectedId}
-          onMarkerClick={setSelectedId}
+          onMarkerClick={handleMarkerClick}
         />
       </Suspense>
 
-      {selectedSensor && (
+      {displayedSensor && (
         <Sidebar
-          sensor={selectedSensor}
+          sensor={displayedSensor}
           scale={scale}
-          onClose={() => setSelectedId(null)}
+          closing={sidebarClosing}
+          onClose={handleClose}
         />
       )}
 
       {error && (
-        <div role="alert" className="fixed top-20 left-1/2 -translate-x-1/2 bg-destructive text-destructive-foreground px-4 py-2 rounded-lg shadow-lg z-50">
-          Błąd połączenia: {error}
+        <div
+          role="alert"
+          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-destructive text-destructive-foreground px-4 py-2.5 rounded-lg shadow-lg max-w-sm w-[calc(100%-2rem)] error-drop-in"
+        >
+          <span className="text-sm">Błąd połączenia: {error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="ml-auto p-1 rounded hover:bg-white/20 transition-colors flex-shrink-0"
+            aria-label="Zamknij"
+          >
+            ✕
+          </button>
         </div>
       )}
     </div>

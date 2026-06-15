@@ -28,25 +28,29 @@ export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: 
 
       <div className="flex-1" />
 
-      {/* Scale toggle */}
+      {/* Scale toggle — sliding pill */}
       <div
         role="tablist"
         aria-label="Wybór skali jakości powietrza"
-        className="flex items-center gap-2 bg-muted/50 rounded-full p-1 border border-border/50"
+        className="relative flex items-center bg-muted/50 rounded-full p-1 border border-border/50"
       >
+        {/* Animowany pill — przesuwa się między CAQI a GIOŚ */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-1 left-1 rounded-full bg-primary shadow-sm transition-transform duration-200 ease-out"
+          style={{
+            width: 'calc(50% - 4px)',
+            transform: scale === 'caqi' ? 'translateX(0)' : 'translateX(100%)',
+          }}
+        />
         <button
           role="tab"
           aria-selected={scale === 'caqi'}
           aria-label="Skala CAQI - Common Air Quality Index"
           onClick={() => onScaleChange('caqi')}
-          className={`
-            min-h-[44px] px-4 py-3 rounded-full text-sm font-medium transition-all
-            focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none
-            ${scale === 'caqi'
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-            }
-          `}
+          className={`relative z-10 flex-1 min-h-[44px] px-4 py-3 rounded-full text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none ${
+            scale === 'caqi' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+          }`}
         >
           CAQI
         </button>
@@ -55,14 +59,9 @@ export const TopBar = memo(function TopBar({ scale, onScaleChange, updatedAt }: 
           aria-selected={scale === 'gios'}
           aria-label="Skala GIOŚ - Polski indeks jakości powietrza"
           onClick={() => onScaleChange('gios')}
-          className={`
-            min-h-[44px] px-4 py-3 rounded-full text-sm font-medium transition-all
-            focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none
-            ${scale === 'gios'
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-            }
-          `}
+          className={`relative z-10 flex-1 min-h-[44px] px-4 py-3 rounded-full text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none ${
+            scale === 'gios' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+          }`}
         >
           GIOŚ
         </button>
