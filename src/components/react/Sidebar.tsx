@@ -85,20 +85,28 @@ export function Sidebar({ sensor, scale, closing, onClose }: SidebarProps) {
   return (
     <div
       ref={panelRef}
-      className={`fixed top-0 sm:top-14 bottom-0 left-0 w-full sm:w-96 bg-background/95 backdrop-blur-md shadow-2xl z-40 flex flex-col sidebar-panel ${translateClass} ${closing ? 'sidebar-closing' : ''}`}
+      className={`fixed top-0 sm:top-14 bottom-0 left-0 w-full sm:w-96 bg-background/95 backdrop-blur-md shadow-2xl z-[600] flex flex-col sidebar-panel ${translateClass} ${closing ? 'sidebar-closing' : ''}`}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
       {/* Drag handle — mobile only */}
-      <div className="sm:hidden flex justify-center pt-3 pb-1 flex-shrink-0" aria-hidden="true">
+      <div className="sm:hidden flex justify-center items-center gap-3 pt-3 pb-1 flex-shrink-0 relative" aria-hidden="true">
         <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+        {/* Close button inside handle on mobile */}
+        <button
+          onClick={onClose}
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-muted/80 hover:bg-muted transition-colors"
+          aria-label="Zamknij"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
       </div>
 
-      {/* External close tab — sticks out to the right of the sidebar */}
+      {/* External close tab — desktop only, sticks out to the right */}
       <button
         onClick={onClose}
-        className="absolute top-14 right-0 translate-x-full z-50 flex items-center justify-center bg-background border border-l-0 border-border rounded-r-xl shadow-md hover:bg-muted transition-colors"
+        className="hidden sm:flex absolute top-4 right-0 translate-x-full z-50 items-center justify-center bg-background border border-l-0 border-border rounded-r-xl shadow-md hover:bg-muted transition-colors"
         style={{ width: 28, paddingTop: 20, paddingBottom: 20 }}
         aria-label="Zamknij"
       >
