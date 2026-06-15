@@ -7,6 +7,7 @@ import { PollutantStrip } from './PollutantStrip';
 import { MiniChart } from './MiniChart';
 import { EducationCard } from './EducationCard';
 import { computeAqi } from '@/lib/aqi';
+import { SENSOR_PHOTOS } from '@/lib/sensorPhotos';
 import type { Sensor, Scale } from '@/lib/types';
 
 interface SidebarProps {
@@ -47,6 +48,17 @@ export function Sidebar({ sensor, scale, closing, onClose }: SidebarProps) {
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
+        {/* Building photo */}
+        {SENSOR_PHOTOS[sensor.id] && (
+          <div className="relative h-40 rounded-xl overflow-hidden">
+            <img
+              src={SENSOR_PHOTOS[sensor.id]}
+              alt={sensor.name}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+          </div>
+        )}
         <CompactHeader sensor={sensor} scale={scale} />
         <PollutantStrip
           pm10={sensor.pm10}
