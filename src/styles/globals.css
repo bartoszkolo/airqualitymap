@@ -59,58 +59,53 @@
 }
 
 /* Leaflet marker pulse animation */
-@keyframes pulse-ring-1 {
+@keyframes pulse-ring {
   0% {
-    transform: scale(1);
-    opacity: 0.6;
+    r: 14;
+    fill-opacity: 0.5;
   }
   100% {
-    transform: scale(1.5);
-    opacity: 0;
+    r: 28;
+    fill-opacity: 0;
   }
 }
 
-@keyframes pulse-ring-2 {
-  0% {
-    transform: scale(1);
-    opacity: 0.3;
-  }
-  100% {
-    transform: scale(2);
-    opacity: 0;
-  }
-}
-
-.leaflet-pulse-ring-1 {
-  animation: pulse-ring-1 1.5s ease-out infinite;
-  transform-origin: center;
-}
-
-.leaflet-pulse-ring-2 {
-  animation: pulse-ring-2 1.5s ease-out infinite;
-  animation-delay: 0.3s;
-  transform-origin: center;
+.leaflet-pulse-ring svg circle {
+  animation: pulse-ring 1.8s ease-out infinite;
 }
 
 .leaflet-marker-selected {
   transition: all 0.2s ease-out;
 }
 
-/* Better tooltip styling */
-:global(.custom-tooltip) {
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 8px 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  font-family: system-ui, -apple-system, sans-serif;
+/* Better tooltip styling - dark for better contrast */
+.leaflet-tooltip {
+  background-color: #1e293b !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
-:global(.custom-tooltip .leaflet-tooltip-content) {
-  margin: 0;
+.leaflet-tooltip-content {
+  background: transparent !important;
+  color: #fff !important;
+  padding: 8px 12px !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
 }
 
-:global(.leaflet-tooltip-top:before) {
-  border-top-color: rgba(255, 255, 255, 0.95) !important;
+.leaflet-tooltip-top:before {
+  border-top-color: #1e293b !important;
+}
+
+.leaflet-tooltip-bottom:before {
+  border-bottom-color: #1e293b !important;
+}
+
+.leaflet-tooltip-left:before {
+  border-left-color: #1e293b !important;
+}
+
+.leaflet-tooltip-right:before {
+  border-right-color: #1e293b !important;
 }

@@ -33,18 +33,21 @@ export function CompactHeader({ sensor, scale }: CompactHeaderProps) {
 
       {/* Content */}
       <div className="relative z-10">
+        {/* Health advice message - prominent! */}
+        <p className="text-base font-semibold leading-snug opacity-95">{advice.advice}</p>
+
         {/* Sensor name + emoji row */}
-        <div className="flex items-center gap-3 mb-2">
-          <span className="text-3xl">{advice.emoji}</span>
-          <h2 className="text-xl font-bold leading-tight">{sensor.name}</h2>
+        <div className="flex items-center gap-3 mt-3 mb-1">
+          <span className="text-2xl">{advice.emoji}</span>
+          <h2 className="text-lg font-bold leading-tight">{sensor.name}</h2>
         </div>
 
         {/* AQI status row */}
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex items-center justify-between mt-2">
           <div>
-            <p className="text-base font-semibold opacity-95">{aqi.cls.label}</p>
+            <p className="text-sm font-semibold opacity-90">{aqi.cls.label}</p>
             {aqi.index !== null && (
-              <p className="text-xs opacity-80 mt-0.5">
+              <p className="text-xs opacity-75 mt-0.5">
                 {scale === 'caqi' ? `CAQI ${aqi.index}` : `GIOŚ: ${aqi.index}`}
               </p>
             )}
@@ -53,7 +56,7 @@ export function CompactHeader({ sensor, scale }: CompactHeaderProps) {
         </div>
 
         {/* Update time */}
-        <p className="text-xs opacity-60 mt-3">Aktualizacja: {when}</p>
+        <p className="text-xs opacity-60 mt-2">Aktualizacja: {when}</p>
       </div>
     </div>
   );

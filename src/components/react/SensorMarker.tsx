@@ -20,7 +20,6 @@ export function SensorMarker({ sensor, scale, onClick, selected }: SensorMarkerP
     map.panTo([sensor.lat, sensor.lon]);
   };
 
-  // Create custom path options for offline state
   const pathOptions = offline
     ? {
         color: '#ffffff',
@@ -38,30 +37,32 @@ export function SensorMarker({ sensor, scale, onClick, selected }: SensorMarkerP
 
   return (
     <>
-      {/* Pulsing rings for selected marker */}
+      {/* Pulse rings for selected marker */}
       {selected && !offline && (
         <>
           <CircleMarker
             center={[sensor.lat, sensor.lon]}
-            radius={20}
+            radius={22}
             pathOptions={{
               color: aqi.cls.color,
-              weight: 2,
-              fillOpacity: 0,
-              opacity: 0.6,
+              weight: 0,
+              fillColor: aqi.cls.color,
+              fillOpacity: 0.3,
             }}
-            className="leaflet-pulse-ring-1"
+            className="leaflet-pulse-ring"
+            style={{ animationDelay: '0s' }}
           />
           <CircleMarker
             center={[sensor.lat, sensor.lon]}
-            radius={26}
+            radius={22}
             pathOptions={{
               color: aqi.cls.color,
-              weight: 1,
-              fillOpacity: 0,
-              opacity: 0.3,
+              weight: 0,
+              fillColor: aqi.cls.color,
+              fillOpacity: 0.2,
             }}
-            className="leaflet-pulse-ring-2"
+            className="leaflet-pulse-ring"
+            style={{ animationDelay: '0.6s' }}
           />
         </>
       )}
@@ -72,14 +73,8 @@ export function SensorMarker({ sensor, scale, onClick, selected }: SensorMarkerP
         radius={selected ? 14 : 11}
         pathOptions={pathOptions}
         eventHandlers={{ click: handleClick }}
-        className={selected ? 'leaflet-marker-selected' : ''}
       >
-        <Tooltip
-          direction="top"
-          offset={[0, -8]}
-          opacity={1}
-          className="custom-tooltip"
-        >
+        <Tooltip direction="top" offset={[0, -8]} opacity={1}>
           <div className="text-sm">
             <div className="font-bold text-base">{sensor.name}</div>
             <div className="flex items-center gap-2 mt-1">
@@ -89,13 +84,13 @@ export function SensorMarker({ sensor, scale, onClick, selected }: SensorMarkerP
               />
               <span className="font-medium">{aqi.cls.label}</span>
               {aqi.index !== null && (
-                <span className="text-muted-foreground text-xs">
+                <span className="text-white/70 text-xs">
                   ({scale === 'caqi' ? `CAQI ${aqi.index}` : `GIOŚ ${aqi.index}`})
                 </span>
               )}
             </div>
             {offline && (
-              <div className="text-xs text-muted-foreground mt-1 italic">
+              <div className="text-xs text-white/70 mt-1 italic">
                 Czujnik offline
               </div>
             )}
