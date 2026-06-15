@@ -1,38 +1,63 @@
-/**
- * Kształt danych czujnika oczekiwany przez frontend.
- * W Etapie 1 wypełniany z public/data/sensors.json (mock).
- * W Etapie 2 dokładnie ten sam JSON zwróci funkcja /api/sensors (proxy do ThingsBoard).
- */
-
-export interface HistoryPoint {
-  /** epoch ms */
-  ts: number;
-  pm10: number | null;
-  pm25: number | null;
-}
-
+// src/lib/types.ts
 export interface Sensor {
   id: string;
   name: string;
-  /** np. miejscowość / opis lokalizacji */
-  address?: string;
+  address: string;
   lat: number;
   lon: number;
-  /** czas ostatniego pomiaru (epoch ms) */
   ts: number;
   pm10: number | null;
   pm25: number | null;
-  pm1?: number | null;
-  temperature?: number | null;
-  humidity?: number | null;
-  pressure?: number | null;
-  /** czujnik online (atrybut `active` w ThingsBoard) */
-  active?: boolean;
-  /** ostatnie ~24h, najstarszy -> najnowszy */
-  history?: HistoryPoint[];
+  pm1: number | null;
+  active: boolean;
+  lastSeen?: number; // For offline/damaged detection
 }
 
 export interface SensorsResponse {
   updatedAt: number;
   sensors: Sensor[];
+}
+
+export type HistoryPoint = Record<'pm10' | 'pm25' | 'pm1_0', { ts: number; value: string }[]>;
+
+export interface HistoryResponse {
+  points: HistoryPoint;
+  average: number;
+  min: number;
+  max: number;
+  range: '1h' | '24h' | '30d';
+}
+
+export type Scale = 'caqi' | 'gios';
+
+export interface AqiResult {
+  index: number | null;
+  cls: AqiClass;
+}
+
+export interface AqiClass {
+  label: string;
+  color: string;
+  textColor: string;
+  range: [number, number];
+}
+
+export interface SensorStatus {
+  type: 'online' | 'offline' | 'damaged';
+  label: string;
+  description: string;
+}
+
+export interface PollutantInfo {
+  name: string;
+  description: string;
+  health: string;
+  who: string;
+}
+
+export interface HealthAdvice {
+  emoji: string;
+  title: string;
+  advice: string;
+  iconColor: string;
 }
