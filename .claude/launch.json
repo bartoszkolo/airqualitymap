@@ -2,10 +2,11 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "astro-dev",
+      "name": "air-quality-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "4399"],
-      "port": 4399
+      "runtimeArgs": ["run", "dev"],
+      "port": 4321,
+      "cwd": "C:\Users\HP\air-quality-map"
     }
   ]
 }
